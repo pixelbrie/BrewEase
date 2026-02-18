@@ -1,7 +1,11 @@
+import React from "react";
+
 function App() {
   return (
-    <div className="bg-blue-600 text-white p-10 text-3xl">
-      Test
+    <div className="bg-gray-950 flex flex-col items-center justify-center h-screen">
+      <p className="text-2xl font-bold text-white">App New!!</p>
     </div>
-  )
+  );
 }
+
+export default App;
