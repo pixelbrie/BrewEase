@@ -1,10 +1,11 @@
 import React from "react";
 import TestPage from "./pages/TestPage";
+import Login from "./pages/Auth/Login.js";
 
 function App() {
   return (
     <>
-      <TestPage />;
+      <Login />;
     </>
   );
 }
