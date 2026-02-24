@@ -1,11 +1,138 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import brewEaseLogo from "../../assets/images/BrewEaseLogoTrans.png";
 import backgroundLogin from "../../assets/images/backgroundLogin.png";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+
+// interfaces for the login containers to manage state and props
+interface LoginContainerProps {
+  email: string;
+  password: string;
+  onEmailChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
+}
+
+interface AgentLoginContainerProps {
+  pin: string;
+  onPinChange: (value: string) => void;
+}
+
+// LoginContainer component for customer login
+
+function LoginContainer({
+  email,
+  password,
+  onEmailChange,
+  onPasswordChange,
+}: LoginContainerProps) {
+  return (
+    <div className="flex flex-col gap-7 items-center justify-center w-full">
+      <p className="text-lg text-center text-neutral-400">
+        Please enter your details to join your account
+      </p>
+
+      {/* Email input field */}
+      <Input
+        placeholder="Email"
+        type="email"
+        icon={<FaEnvelope />}
+        value={email}
+        onChange={(e) => onEmailChange(e.target.value)}
+      />
+
+      {/* Password input field */}
+      <Input
+        placeholder="Password"
+        type="password"
+        value={password}
+        icon={<FaLock />}
+        onChange={(e) => onPasswordChange(e.target.value)}
+      />
+
+      {/* Login button */}
+      <Button
+        label="Login"
+        className="w-full justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
+        variant="secondary"
+        size="large"
+        onClick={() =>
+          console.log(
+            "Login button clicked with email: " +
+              email +
+              " and password: " +
+              password,
+          )
+        }
+      />
+
+      {/* Sign Up link */}
+      <span className="text-sm text-neutral-400">
+        Don't have an account?{" "}
+        <a href="#" className="text-coffee-600 font-bold">
+          Sign Up
+        </a>
+      </span>
+
+      {/* Access to Agent Login */}
+      <div className="flex flex-row gap-2 w-full items-center">
+        <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
+        <p className="text-lg text-center text-neutral-400">or</p>
+        <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
+      </div>
+
+      {/* Continue as Guest button */}
+      <Button
+        label="Continue as Guest"
+        className="justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
+        variant="secondary"
+        size="large"
+        onClick={() => console.log("Login button clicked")}
+      />
+    </div>
+  );
+}
+
+// AgentLoginContainer component for agent login
+
+function AgentLoginContainer({ pin, onPinChange }: AgentLoginContainerProps) {
+  return (
+    <div className="flex flex-col gap-7 items-center justify-center w-full">
+      <p className="text-lg text-center text-neutral-400">
+        Please enter your details to join your account
+      </p>
+
+      {/* PIN input field */}
+      <Input
+        placeholder="PIN"
+        type="password"
+        icon={<FaLock />}
+        length={4}
+        value={pin}
+        onChange={(e) => onPinChange(e.target.value)}
+      />
+
+      {/* Login button */}
+      <Button
+        label="Login"
+        className="w-full justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
+        variant="secondary"
+        size="large"
+        onClick={() => console.log(`Login button clicked with PIN: ${pin}`)}
+      />
+
+      {/* Sign Up link */}
+      <span className="text-sm text-neutral-400">
+        Don't have an account?{" "}
+        <a href="#" className="text-coffee-600 font-bold">
+          Sign Up
+        </a>
+      </span>
+    </div>
+  );
+}
 
 function Login() {
   //Variables to hold form data and current page state
@@ -14,110 +141,11 @@ function Login() {
   const [pin, setPin] = useState("");
   const [currentPage, setCurrentPage] = useState("customer");
 
-  const handlePageChange = () => {
+  const handlePageChange = (e: React.MouseEvent) => {
+    e.preventDefault();
+
     // Toggle between customer and agent login pages
     setCurrentPage(currentPage === "customer" ? "agent" : "customer");
-  };
-
-  const LoginContainer = () => {
-    return (
-      <>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex flex-col gap-7 items-center justify-center w-full">
-            <p className="text-lg text-center text-neutral-400">
-              Please enter your details to join your account
-            </p>
-            <Input
-              placeholder="Email"
-              type="email"
-              icon={<FaEnvelope />}
-              value={email}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
-              }
-            />
-
-            <Input
-              placeholder="Password"
-              type="password"
-              value={password}
-              icon={<FaLock />}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setPassword(e.target.value)
-              }
-            />
-            <Button
-              label="Login"
-              className="w-full justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
-              variant="secondary"
-              size="large"
-              onClick={() => console.log("Login button clicked")}
-            />
-            <span className="text-sm text-neutral-400">
-              Don't have an account?{" "}
-              <a href="#" className="text-coffee-600 font-bold">
-                Sign Up
-              </a>
-            </span>
-            <div className="flex flex-row gap-2 w-full items-center">
-              <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
-              <p className="text-lg text-center text-neutral-400">or</p>
-              <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
-            </div>
-            <Button
-              label="Continue as Guest"
-              className="justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
-              variant="secondary"
-              size="large"
-              onClick={() => console.log("Login button clicked")}
-            />
-          </div>
-        </motion.div>
-      </>
-    );
-  };
-
-  const AgentLoginContainer = () => {
-    return (
-      <>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex flex-col gap-7 items-center justify-center w-full">
-            <p className="text-lg text-center text-neutral-400">
-              Please enter your details to join your account
-            </p>
-            <Input
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="PIN"
-              type="password"
-              icon={<FaLock />}
-              length={4}
-            />
-            <Button
-              label="Login"
-              className="w-full justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
-              variant="secondary"
-              size="large"
-              onClick={() => console.log("Login button clicked")}
-            />
-            <span className="text-sm text-neutral-400">
-              Don't have an account?{" "}
-              <a href="#" className="text-coffee-600 font-bold">
-                Sign Up
-              </a>
-            </span>
-          </div>
-        </motion.div>
-      </>
-    );
   };
   return (
     <div
@@ -134,16 +162,59 @@ function Login() {
           alt="BrewEase Logo"
           className="w-28 h-28 mb-4"
         />
+        <AnimatePresence mode="wait" initial={false}>
+          {currentPage === "customer" ? (
+            <motion.div
+              key="customer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="text-3xl font-bold">Customer Login</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="agent"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="text-3xl font-bold">Agent Login</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <p className="text-3xl font-bold">
-          {currentPage === "customer" ? "Customer Login" : "Agent Login"}
-        </p>
-
-        {currentPage === "customer" ? (
-          <LoginContainer />
-        ) : (
-          <AgentLoginContainer />
-        )}
+        {/* Animate the customer/agent switch only (not on each keystroke). */}
+        <AnimatePresence mode="wait" initial={false}>
+          {currentPage === "customer" ? (
+            <motion.div
+              key="customer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <LoginContainer
+                email={email}
+                password={password}
+                onEmailChange={setEmail}
+                onPasswordChange={setPassword}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="agent"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <AgentLoginContainer pin={pin} onPinChange={setPin} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex flex-row gap-4 w-full items-center">
           <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
