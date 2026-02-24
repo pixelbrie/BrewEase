@@ -27,6 +27,7 @@ function Input({
   classname,
   value,
   onChange,
+  length,
 }: InputProps) {
   return (
     <div className="flex flex-col w-full">
