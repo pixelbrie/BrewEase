@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# env files
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# build output
+dist/
+build/
+coverage/
+
+# system/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker/local overrides
+docker-compose.override.yml
+
+# optional: ignore local database/cache/temp files
+*.log
+*.tmp
