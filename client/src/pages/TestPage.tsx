@@ -8,7 +8,6 @@ function TestPage() {
   return (
     <>
       <div className="flex flex-row justify-center items-center h-screen w-screen gap-4 bg-coffee-300">
-        <LoginContainer />
         {/* <AddtoCartButton /> */}
       </div>
     </>
