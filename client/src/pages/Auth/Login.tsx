@@ -7,6 +7,13 @@ import brewEaseLogo from "../../assets/images/BrewEaseLogoTrans.png";
 import backgroundLogin from "../../assets/images/backgroundLogin.png";
 import { AnimatePresence, motion } from "motion/react";
 
+//NOTES: Brie
+/*
+* We are aiming to make sure that the login is for the employee and the PIN is for the POS system to be able to change
+the products and manage the orders. The customer login is not a priority at the moment, but we can add it later if we have time. 
+For now, we will focus on the employee login and the POS system. The customer login can be added later as a separate page or as a modal. 
+*/
+
 // interfaces for the login containers to manage state and props
 interface LoginContainerProps {
   email: string;
@@ -171,7 +178,7 @@ function Login() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <p className="text-3xl font-bold">Customer Login</p>
+              <p className="text-3xl font-bold">EMPLOYEE LOGIN</p>
             </motion.div>
           ) : (
             <motion.div
@@ -181,7 +188,7 @@ function Login() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <p className="text-3xl font-bold">Agent Login</p>
+              <p className="text-3xl font-bold">AGENT LOGIN</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -223,7 +230,7 @@ function Login() {
             className="text-coffee-600 font-bold whitespace-nowrap"
             onClick={handlePageChange}
           >
-            {currentPage === "customer" ? "Agent Login" : "Customer Login"}
+            {currentPage === "customer" ? "POS Mode" : "Employee Login"}
           </a>
           <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
         </div>
