@@ -2,10 +2,14 @@
 node_modules/
 **/node_modules/
 
-# env files
-.env
-.env.*
-!.env.example
+# env files & secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/secrets/*
+!**/secrets/.gitkeep
+**/serviceAccountKey.json
+**/brewease-2026-firebase-adminsdk-*.json
 
 # logs
 npm-debug.log*
