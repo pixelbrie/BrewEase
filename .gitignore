@@ -25,7 +25,8 @@ coverage/
 # system/editor files
 .DS_Store
 Thumbs.db
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 .idea/
 
 # Docker/local overrides
