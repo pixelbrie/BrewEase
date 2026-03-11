@@ -15,7 +15,7 @@ For now, we will focus on the employee login and the POS system. The customer lo
 */
 
 // interfaces for the login containers to manage state and props
-interface LoginContainerProps {
+interface EmployeeLoginContainerProps {
   email: string;
   password: string;
   onEmailChange: (value: string) => void;
@@ -27,14 +27,12 @@ interface AgentLoginContainerProps {
   onPinChange: (value: string) => void;
 }
 
-// LoginContainer component for customer login
-
-function LoginContainer({
+function CustomerLoginContainer({
   email,
   password,
   onEmailChange,
   onPasswordChange,
-}: LoginContainerProps) {
+}: EmployeeLoginContainerProps) {
   return (
     <div className="flex flex-col gap-7 items-center justify-center w-full">
       <p className="text-lg text-center text-neutral-400">
@@ -141,7 +139,7 @@ function AgentLoginContainer({ pin, onPinChange }: AgentLoginContainerProps) {
   );
 }
 
-function Login() {
+function LoginContainer() {
   //Variables to hold form data and current page state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -154,89 +152,7 @@ function Login() {
     // Toggle between customer and agent login pages
     setCurrentPage(currentPage === "customer" ? "agent" : "customer");
   };
-  return (
-    <div
-      className="flex 1 flex-col text-coffee-800 items-center justify-center h-screen"
-      style={{
-        backgroundImage: `url(${backgroundLogin})`,
-        backgroundSize: "cover",
-      }}
-    >
-      {/* Login Form */}
-      <div className="font-nunito flex flex-col lg:w-[500px] sm:w-[500px] xs:w-[300px] gap-7 items-center justify-center p-20 rounded-xl bg-neutral-100">
-        <img
-          src={brewEaseLogo}
-          alt="BrewEase Logo"
-          className="w-28 h-28 mb-4"
-        />
-        <AnimatePresence mode="wait" initial={false}>
-          {currentPage === "customer" ? (
-            <motion.div
-              key="customer"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <p className="text-3xl font-bold">EMPLOYEE LOGIN</p>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="agent"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <p className="text-3xl font-bold">AGENT LOGIN</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Animate the customer/agent switch only (not on each keystroke). */}
-        <AnimatePresence mode="wait" initial={false}>
-          {currentPage === "customer" ? (
-            <motion.div
-              key="customer"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <LoginContainer
-                email={email}
-                password={password}
-                onEmailChange={setEmail}
-                onPasswordChange={setPassword}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="agent"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <AgentLoginContainer pin={pin} onPinChange={setPin} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="flex flex-row gap-4 w-full items-center">
-          <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
-          <a
-            href="#"
-            className="text-coffee-600 font-bold whitespace-nowrap"
-            onClick={handlePageChange}
-          >
-            {currentPage === "customer" ? "POS Mode" : "Employee Login"}
-          </a>
-          <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
-        </div>
-      </div>
-    </div>
-  );
+  return <div>Main Login Container</div>;
 }
 
-export default Login;
+export default LoginContainer;

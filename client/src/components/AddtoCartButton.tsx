@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { TbShoppingBagPlus } from "react-icons/tb";
-import { LuCheck } from "react-icsafaons/lu";
+import { FaCheck } from "react-icons/fa";
 
 interface AddtoCartButtonProps {
   onClick?: () => void;
@@ -36,7 +36,7 @@ function AddtoCartButton({ onClick }: AddtoCartButtonProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { duration: 0.5 } }}
           >
-            <LuCheck style={style.icon} />
+            <FaCheck style={style.icon} />
           </motion.div>
         ) : (
           <TbShoppingBagPlus style={style.icon} />

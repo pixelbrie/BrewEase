@@ -6,6 +6,11 @@ import { useState } from "react";
 import Input from "../components/Input.js";
 import Button from "../components/Button.js";
 import { FaEnvelope, FaLock } from "react-icons/fa";
+import { Navigate } from "react-router-dom";
+import LoginChoice from "../components/loginChoice.js";
+import MemberChoiceImg from "../assets/images/img-MemberSelection.png";
+import EmployeeChoiceImg from "../assets/images/img-EmployeeSelection.png";
+import GuestChoiceImg from "../assets/images/img-GuestSelection.png";
 
 interface LoginContainerProps {
   email: string;
@@ -14,12 +19,12 @@ interface LoginContainerProps {
   onPasswordChange: (value: string) => void;
 }
 
-function LoginContainer({
+const CustomerLoginContainer = ({
   email,
   password,
   onEmailChange,
   onPasswordChange,
-}: LoginContainerProps) {
+}: LoginContainerProps) => {
   return (
     <motion.div
       initial={{ y: 30, opacity: 0 }}
@@ -73,21 +78,49 @@ function LoginContainer({
         </a>
       </span>
 
-      {/* Access to Agent Login */}
       <div className="flex flex-row gap-2 w-full items-center">
         <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
         <p className="text-lg text-center text-neutral-400">or</p>
         <span className="bg-coffee-200 h-0.5 w-full border-neutralui-100"></span>
       </div>
+    </motion.div>
+  );
+};
 
-      {/* Continue as Guest button */}
-      <Button
-        label="Continue as Guest"
-        className="justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
-        variant="secondary"
-        size="large"
-        onClick={() => console.log("Login button clicked")}
-      />
+function LoginContainer({
+  email,
+  password,
+  onEmailChange,
+  onPasswordChange,
+}: LoginContainerProps) {
+  return (
+    <motion.div
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+      className="flex flex-col gap-7 items-center justify-center h-full w-full bg-white p-8 rounded-lg shadow-lg"
+    >
+      <p className="text-lg text-center text-neutral-400">
+        Select your login type to continue
+        <LoginChoice
+          label="Customer"
+          description="Login as a customer"
+          onClick={() => console.log("Customer login clicked")}
+          icon={MemberChoiceImg}
+        />
+        <LoginChoice
+          label="Guest"
+          description="Continue as a guest"
+          onClick={() => console.log("Guest login clicked")}
+          icon={GuestChoiceImg}
+        />
+        <LoginChoice
+          label="Employee"
+          description="Login as an Employee"
+          onClick={() => console.log("Employee login clicked")}
+          icon={EmployeeChoiceImg}
+        />
+      </p>
     </motion.div>
   );
 }
