@@ -1,7 +1,7 @@
 import React from "react";
 
 import backgroundLogin from "../assets/images/backgroundLogin.png";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion, animate } from "motion/react";
 import { useState } from "react";
 import Input from "../components/Input.js";
 import Button from "../components/Button.js";
@@ -21,7 +21,12 @@ function LoginContainer({
   onPasswordChange,
 }: LoginContainerProps) {
   return (
-    <div className="flex flex-col gap-7 items-center justify-center h-full w-full bg-white p-8 rounded-lg shadow-lg">
+    <motion.div
+      initial={{ y: 30, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+      className="flex flex-col gap-7 items-center justify-center h-full w-full bg-white p-8 rounded-lg shadow-lg"
+    >
       <p className="text-lg text-center text-neutral-400">
         Please enter your details to join your account
       </p>
@@ -83,7 +88,7 @@ function LoginContainer({
         size="large"
         onClick={() => console.log("Login button clicked")}
       />
-    </div>
+    </motion.div>
   );
 }
 

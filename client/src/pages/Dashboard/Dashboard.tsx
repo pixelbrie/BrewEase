@@ -13,14 +13,24 @@ function Dashboard() {
         <FilterContainer />
 
         {/* Menu view */}
-        <div className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8">
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="flex flex-col w-full h-3/4 bg-white rounded-lg shadow-lg p-8"
+        >
           menuView
-        </div>
+        </motion.div>
 
         {/* Item detail view */}
-        <div className="flex flex-col w-full h-1/4 bg-white rounded-lg shadow-lg p-8">
+        <motion.div
+          className="flex flex-col w-full h-1/4 bg-white rounded-lg shadow-lg p-8"
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
           itemDetailView
-        </div>
+        </motion.div>
       </div>
 
       {/* Right side of the dashboard */}
@@ -35,9 +45,14 @@ function Dashboard() {
         />
 
         {/* Order summary view */}
-        <div className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8">
+        <motion.div
+          className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8"
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
           orderSummaryView
-        </div>
+        </motion.div>
       </div>
     </div>
   );

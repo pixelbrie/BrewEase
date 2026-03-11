@@ -2,7 +2,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { TbShoppingBagPlus } from "react-icons/tb";
-import { LuCheck } from "react-icons/lu";
+import { LuCheck } from "react-icsafaons/lu";
 
 interface AddtoCartButtonProps {
   onClick?: () => void;

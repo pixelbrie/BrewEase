@@ -20,7 +20,7 @@ function FilterContainer() {
     <motion.div
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
+      transition={{ duration: 0.6, delay: 0.1 }}
       className="flex flex-row justify-center items-center h-1/3 w-full gap-4"
     >
       <FilterButtonTea
