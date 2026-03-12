@@ -1,6 +1,5 @@
 import app from "./app.js"
 import dotenv from "dotenv"
-import { db } from './config/firebaseAdmin.js';
 import { validateDB } from './config/validateDB.js'
 
 dotenv.config()
