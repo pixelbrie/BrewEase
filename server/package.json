@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/server.js",
+    "dev": "nodemon -L --watch src src/server.js",
     "start": "node src/server.js"
   },
   "dependencies": {
