@@ -1,8 +1,8 @@
 import React from "react";
 import TestPage from "./pages/TestPage";
-import LoginContainer from "./pages/Auth/Login.js";
-import Dashboard from "./pages/Dashboard/Dashboard.js";
-import { Route, Routes } from "react-router";
+import LoginContainer from "./pages/Auth/Login";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import { Route, Routes } from "react-router-dom";
 
 function App() {
   return (
