@@ -1,6 +1,5 @@
 //doc = pulling out one specific part of the database
 //get = opening that part and reading it 
-
 export async function getAllMenu() {
     const ss = await db.collection('purchaseableItems').get();
     return ss.docs.map(doc =>({
@@ -9,7 +8,7 @@ export async function getAllMenu() {
 
 export async function getMenuById(itemId) {
     const doc = await db.collection('purchaseableItems').doc(itemId).get();
-    if(!doc.exists) return null;
+    if(!doc.exists) return null; 
     return {itemId: doc.id, ...doc.data()}
 }
 

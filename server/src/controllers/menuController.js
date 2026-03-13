@@ -36,7 +36,7 @@ exports.createMenuItem = async (req, res) => {
 }
 exports.updateMenuItem = async (req, res) => {
     try{
-        const updated = await menuService.updateMenu(req.params.id, req.body);
+        const updated = await menuService.updateMenuItem(req.params.id, req.body);
 
         if (!updated){
             return res.status(404).json({error: "Menu Item Not Found"})
@@ -52,11 +52,12 @@ exports.updateMenuItem = async (req, res) => {
 
 exports.deleteMenuItem = async (req, res) => {
     try{
-        const deleted = await menuService.deleteMenu(req.params.id);
+        const deleted = await menuService.deleteMenuItem(req.params.id);
 
         if(!deleted){
             return res.status(404).json({error: "Menu Item Not Found"})
         }
+        res.json(deleted)
     }catch(err){
         console.error(err)
         return res.status(500).json({error: "Server error"})
