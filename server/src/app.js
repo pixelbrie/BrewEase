@@ -40,6 +40,10 @@ app.use(
   }),
 );
 
+// Routes
+const authRoutes = require('./routes/authRoutes.js')
+app.use('/api/auth', authRoutes)
+
 app.get("/", (req, res) => {
   res.json({ message: "BrewEase API running" });
 });
