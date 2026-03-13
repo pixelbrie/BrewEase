@@ -1,4 +1,4 @@
-import { db } from "./firebaseAdmin.js"
+import { db } from "../config/firebaseAdmin.js"
 
 export async function validateDB() {
   try {

@@ -1,6 +1,6 @@
 import app from "./app.js"
 import dotenv from "dotenv"
-import { validateDB } from './config/validateDB.js'
+import { validateDB } from './middleware/validateDB.js'
 
 dotenv.config()
 
