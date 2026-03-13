@@ -23,6 +23,10 @@ coverage/
 Thumbs.db
 .vscode/
 .idea/
+IMPLEMENTATION_SUMMARY.md
+POS_AUTH_DOCUMENTATION.md
+POS_AUTH_QUICK_REFERENCE.md
+POS_AUTH_VERIFICATION.md
 
 # Docker/local overrides
 docker-compose.override.yml

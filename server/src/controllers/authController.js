@@ -201,9 +201,8 @@ const getCurrentUser = async (req, res) => {
 // Response: { token }
 const refreshToken = async (req, res) => {
     try {
-        // Extract user UID and tenantId from the request (attached by verifyAuth middleware)
+        // Extract user UID from the request (attached by verifyAuth middleware)
         const uid = req.user?.uid;
-        const tenantId = req.user?.tenantId;
 
         // Validate that user UID is present
         if (!uid) {
@@ -388,6 +387,309 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// POST /api/auth/pos-login - POS terminal login with PIN
+// Request body: { pin, terminalId }
+// Response: { uid, email, displayName, role, tenantId, token, sessionId }
+const posLogin = async (req, res) => {
+    try {
+        // Extract PIN and terminal ID from request body
+        const { pin, terminalId } = req.body;
+
+        // Validate that both PIN and terminalId are provided
+        if (!pin || !terminalId) {
+            return res.status(400).json({ error: 'PIN and terminalId are required' });
+        }
+
+        // Validate PIN format (should be numeric and typically 4-6 digits)
+        if (!/^\d{4,6}$/.test(pin)) {
+            return res.status(400).json({ error: 'Invalid PIN format' });
+        }
+
+        // Query Firestore to find user with matching PIN
+        const usersSnapshot = await db
+            .collection('users')
+            .where('pin', '==', pin)
+            .get();
+
+        // Check if any user was found with this PIN
+        if (usersSnapshot.empty) {
+            return res.status(401).json({ error: 'Invalid PIN' });
+        }
+
+        // Get the first (and should be only) user with this PIN
+        const userDoc = usersSnapshot.docs[0];
+        const userData = userDoc.data();
+        const uid = userDoc.id;
+
+        // Check if user is active (not suspended)
+        if (userData.suspended) {
+            return res.status(403).json({ error: 'User account is suspended' });
+        }
+
+        // Generate a unique session ID for this POS login
+        const sessionId = `${terminalId}-${uid}-${Date.now()}`;
+
+        // Create a POS session record in Firestore
+        await db.collection('pos_sessions').doc(sessionId).set({
+            sessionId: sessionId,
+            uid: uid,
+            terminalId: terminalId,
+            email: userData.email,
+            displayName: userData.displayName,
+            role: userData.role,
+            tenantId: userData.tenantId,
+            loginTime: admin.firestore.FieldValue.serverTimestamp(),
+            lastActivityTime: admin.firestore.FieldValue.serverTimestamp(),
+            active: true
+        });
+
+        // Generate a custom token for the POS session
+        const customToken = await admin.auth().createCustomToken(uid, {
+            email: userData.email,
+            role: userData.role,
+            tenantId: userData.tenantId,
+            sessionId: sessionId,
+            posLogin: true
+        });
+
+        // Return success response with user data, token, and session ID
+        return res.status(200).json({
+            uid: uid,
+            email: userData.email,
+            displayName: userData.displayName,
+            role: userData.role,
+            tenantId: userData.tenantId,
+            token: customToken,
+            sessionId: sessionId
+        });
+    } catch (error) {
+        // Log error for debugging
+        console.error('POS login error:', error.message);
+
+        // Return error response
+        return res.status(500).json({ error: 'POS login failed', details: error.message });
+    }
+};
+
+// POST /api/auth/pos-logout - POS terminal logout
+// Requires: Valid authentication token
+// Request body: { sessionId }
+// Response: { message: 'POS logout successful' }
+const posLogout = async (req, res) => {
+    try {
+        // Extract user UID from request (attached by verifyAuth middleware)
+        const uid = req.user?.uid;
+
+        // Extract session ID from request body
+        const { sessionId } = req.body;
+
+        // Validate that user UID is present
+        if (!uid) {
+            return res.status(400).json({ error: 'User not authenticated' });
+        }
+
+        // Validate that session ID is provided
+        if (!sessionId) {
+            return res.status(400).json({ error: 'Session ID is required' });
+        }
+
+        // Fetch the POS session from Firestore
+        const sessionDoc = await db.collection('pos_sessions').doc(sessionId).get();
+
+        // Check if session exists
+        if (!sessionDoc.exists) {
+            return res.status(404).json({ error: 'Session not found' });
+        }
+
+        // Verify that the session belongs to the current user
+        const sessionData = sessionDoc.data();
+        if (sessionData.uid !== uid) {
+            return res.status(403).json({ error: 'Cannot logout from another user\'s session' });
+        }
+
+        // Mark the session as inactive and update logout time
+        await db.collection('pos_sessions').doc(sessionId).update({
+            active: false,
+            logoutTime: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Return success response
+        return res.status(200).json({ message: 'POS logout successful' });
+    } catch (error) {
+        // Log error for debugging
+        console.error('POS logout error:', error.message);
+
+        // Return error response
+        return res.status(500).json({ error: 'POS logout failed', details: error.message });
+    }
+};
+
+// GET /api/auth/pos-sessions - Get active POS sessions for current user
+// Requires: Valid authentication token
+// Response: Array of active session objects
+const getPOSSessions = async (req, res) => {
+    try {
+        // Extract user UID from request (attached by verifyAuth middleware)
+        const uid = req.user?.uid;
+
+        // Validate that user UID is present
+        if (!uid) {
+            return res.status(400).json({ error: 'User not authenticated' });
+        }
+
+        // Query Firestore for all active sessions belonging to this user
+        const sessionsSnapshot = await db
+            .collection('pos_sessions')
+            .where('uid', '==', uid)
+            .where('active', '==', true)
+            .get();
+
+        // Create an array to store all session data
+        const sessions = [];
+
+        // Iterate through each session document
+        sessionsSnapshot.forEach((doc) => {
+            // Extract session data and add to array
+            sessions.push(doc.data());
+        });
+
+        // Return the array of active sessions
+        return res.status(200).json(sessions);
+    } catch (error) {
+        // Log error for debugging
+        console.error('Get POS sessions error:', error.message);
+
+        // Return error response
+        return res.status(500).json({ error: 'Failed to fetch POS sessions', details: error.message });
+    }
+};
+
+// POST /api/auth/admin/users/:userId/pin - Set or reset user PIN for POS
+// Requires: Admin role
+// URL params: userId
+// Request body: { pin }
+// Response: { message: 'PIN set successfully', uid }
+const setUserPIN = async (req, res) => {
+    try {
+        // Extract the target user's ID from the URL parameter
+        const userId = req.params.userId;
+
+        // Extract the new PIN from request body
+        const { pin } = req.body;
+
+        // Validate that PIN is provided
+        if (!pin) {
+            return res.status(400).json({ error: 'PIN is required' });
+        }
+
+        // Validate PIN format (should be numeric and typically 4-6 digits)
+        if (!/^\d{4,6}$/.test(pin)) {
+            return res.status(400).json({ error: 'PIN must be 4-6 digits' });
+        }
+
+        // Fetch the user's profile from Firestore to verify they exist
+        const userDoc = await db.collection('users').doc(userId).get();
+
+        // Check if user document exists
+        if (!userDoc.exists) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Update the user's PIN in Firestore
+        await db.collection('users').doc(userId).update({
+            pin: pin,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Return success response
+        return res.status(200).json({
+            message: 'PIN set successfully',
+            uid: userId
+        });
+    } catch (error) {
+        // Log error for debugging
+        console.error('Set user PIN error:', error.message);
+
+        // Return error response
+        return res.status(500).json({ error: 'Failed to set user PIN', details: error.message });
+    }
+};
+
+// GET /api/auth/admin/pos-sessions - View all active POS sessions
+// Requires: Admin role
+// Response: Array of all active POS sessions
+const getAllPOSSessions = async (req, res) => {
+    try {
+        // Extract the admin's tenantId from request (for tenant isolation)
+        const adminTenantId = req.user?.tenantId;
+
+        // Validate that tenantId is present
+        if (!adminTenantId) {
+            return res.status(400).json({ error: 'Tenant ID not found' });
+        }
+
+        // Query Firestore for all active POS sessions in this tenant
+        const sessionsSnapshot = await db
+            .collection('pos_sessions')
+            .where('tenantId', '==', adminTenantId)
+            .where('active', '==', true)
+            .get();
+
+        // Create an array to store all session data
+        const sessions = [];
+
+        // Iterate through each session document
+        sessionsSnapshot.forEach((doc) => {
+            // Extract session data and add to array
+            sessions.push(doc.data());
+        });
+
+        // Return the array of active sessions
+        return res.status(200).json(sessions);
+    } catch (error) {
+        // Log error for debugging
+        console.error('Get all POS sessions error:', error.message);
+
+        // Return error response
+        return res.status(500).json({ error: 'Failed to fetch POS sessions', details: error.message });
+    }
+};
+
+// DELETE /api/auth/admin/pos-sessions/:sessionId - Terminate POS session
+// Requires: Admin role
+// URL params: sessionId
+// Response: { message: 'POS session terminated successfully' }
+const terminatePOSSession = async (req, res) => {
+    try {
+        // Extract the session ID from the URL parameter
+        const sessionId = req.params.sessionId;
+
+        // Fetch the POS session from Firestore to verify it exists
+        const sessionDoc = await db.collection('pos_sessions').doc(sessionId).get();
+
+        // Check if session document exists
+        if (!sessionDoc.exists) {
+            return res.status(404).json({ error: 'Session not found' });
+        }
+
+        // Mark the session as inactive and set termination time
+        await db.collection('pos_sessions').doc(sessionId).update({
+            active: false,
+            terminatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            terminatedBy: req.user?.uid
+        });
+
+        // Return success response
+        return res.status(200).json({ message: 'POS session terminated successfully' });
+    } catch (error) {
+        // Log error for debugging
+        console.error('Terminate POS session error:', error.message);
+
+        // Return error response
+        return res.status(500).json({ error: 'Failed to terminate POS session', details: error.message });
+    }
+};
+
 // Export all controller functions for use in route files
 module.exports = {
     signup,
@@ -397,5 +699,11 @@ module.exports = {
     refreshToken,
     getAllUsers,
     updateUserRole,
-    deleteUser
+    deleteUser,
+    posLogin,
+    posLogout,
+    getPOSSessions,
+    setUserPIN,
+    getAllPOSSessions,
+    terminatePOSSession
 };
