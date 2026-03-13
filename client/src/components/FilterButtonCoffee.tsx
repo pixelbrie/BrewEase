@@ -33,7 +33,7 @@ function FilterButtonCoffee({
     <motion.div
       id="filter-button"
       onClick={handlePress}
-      className={`w-1/2 h-full rounded-2xl flex items-start p-8 cursor-pointer shadow-lg ${className}`}
+      className={`w-full h-1/8 rounded-2xl flex items-start p-8 cursor-pointer shadow-lg ${className}`}
       style={{
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",

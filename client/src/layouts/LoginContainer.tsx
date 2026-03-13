@@ -7,16 +7,31 @@ import Input from "../components/Input.js";
 import Button from "../components/Button.js";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Navigate } from "react-router-dom";
-import LoginChoice from "../components/loginChoice.js";
+import LoginChoice from "../components/LoginChoice";
 import MemberChoiceImg from "../assets/images/img-MemberSelection.png";
 import EmployeeChoiceImg from "../assets/images/img-EmployeeSelection.png";
 import GuestChoiceImg from "../assets/images/img-GuestSelection.png";
+
+//functions//
+
+const handleGoCustomerLogin = () => {
+  console.log("Go to customer login");
+};
+
+const handleGoEmployeeLogin = () => {
+  console.log("Go to employee login");
+};
+
+const handleGoGuestLogin = () => {
+  console.log("Go to guest login");
+};
 
 interface LoginContainerProps {
   email: string;
   password: string;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
+  navigate: (path: string) => void;
 }
 
 const CustomerLoginContainer = ({
@@ -92,6 +107,7 @@ function LoginContainer({
   password,
   onEmailChange,
   onPasswordChange,
+  navigate,
 }: LoginContainerProps) {
   return (
     <motion.div
@@ -104,22 +120,22 @@ function LoginContainer({
         <p>Select your login type to continue</p>
         <LoginChoice
           label="Customer"
-          description="Login as a customer"
-          onClick={() => console.log("Customer login clicked")}
+          description="Sign in to your customer account to earn rewards and track your orders"
+          onClick={handleGoCustomerLogin}
           icon={MemberChoiceImg}
           className="h-full"
         />
         <LoginChoice
           label="Guest"
-          description="Continue as a guest"
-          onClick={() => console.log("Guest login clicked")}
+          description="Continue as a guest without creating an account"
+          onClick={handleGoGuestLogin}
           icon={GuestChoiceImg}
           className="h-full"
         />
         <LoginChoice
           label="Employee"
-          description="Login as an Employee"
-          onClick={() => console.log("Employee login clicked")}
+          description="Login as an Employee to manage orders, inventory, and more"
+          onClick={handleGoEmployeeLogin}
           icon={EmployeeChoiceImg}
           className="h-full"
         />
