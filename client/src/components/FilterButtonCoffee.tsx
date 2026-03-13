@@ -40,9 +40,9 @@ function FilterButtonCoffee({
         backgroundPosition: "20% 40%",
       }}
     >
-      <div className="flex flex-col w-full h-1/3 text-right gap-2">
+      <div className="flex flex-col w-full h-1/3 text-right">
         <p className="text-white font-bold text-3xl">{label}</p>
-        <p className="text-slate-200 text-xl opacity-70">{subLabel}</p>
+        <p className="text-slate-200 text-md opacity-70">{subLabel}</p>
       </div>
     </motion.div>
   );
