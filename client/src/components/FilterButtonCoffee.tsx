@@ -41,7 +41,7 @@ function FilterButtonCoffee({
       }}
     >
       <div className="flex flex-col w-full h-1/3 text-right gap-2">
-        <p className="text-white font-bold text-5xl">{label}</p>
+        <p className="text-white font-bold text-3xl">{label}</p>
         <p className="text-slate-200 text-xl opacity-70">{subLabel}</p>
       </div>
     </motion.div>

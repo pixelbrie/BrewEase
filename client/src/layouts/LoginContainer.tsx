@@ -100,8 +100,8 @@ function LoginContainer({
       transition={{ duration: 0.6, delay: 0.1 }}
       className="flex flex-col gap-7 items-center justify-center h-full w-full bg-white p-8 rounded-lg shadow-lg"
     >
-      <p className="text-lg text-center text-neutral-400">
-        Select your login type to continue
+      <div className="text-lg text-center text-neutral-400">
+        <p>Select your login type to continue</p>
         <LoginChoice
           label="Customer"
           description="Login as a customer"
@@ -120,7 +120,7 @@ function LoginContainer({
           onClick={() => console.log("Employee login clicked")}
           icon={EmployeeChoiceImg}
         />
-      </p>
+      </div>
     </motion.div>
   );
 }
