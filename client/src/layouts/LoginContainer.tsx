@@ -98,27 +98,30 @@ function LoginContainer({
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className="flex flex-col gap-7 items-center justify-center h-full w-full bg-white p-8 rounded-lg shadow-lg"
+      className="flex flex-col items-center justify-center h-full w-full bg-white rounded-lg shadow-lg"
     >
-      <div className="text-lg text-center text-neutral-400">
+      <div className="h-full text-lg text-center text-neutral-400 border border-gray-300 bg-white p-4 rounded-lg w-full flex flex-col items-center gap-4">
         <p>Select your login type to continue</p>
         <LoginChoice
           label="Customer"
           description="Login as a customer"
           onClick={() => console.log("Customer login clicked")}
           icon={MemberChoiceImg}
+          className="h-full"
         />
         <LoginChoice
           label="Guest"
           description="Continue as a guest"
           onClick={() => console.log("Guest login clicked")}
           icon={GuestChoiceImg}
+          className="h-full"
         />
         <LoginChoice
           label="Employee"
           description="Login as an Employee"
           onClick={() => console.log("Employee login clicked")}
           icon={EmployeeChoiceImg}
+          className="h-full"
         />
       </div>
     </motion.div>

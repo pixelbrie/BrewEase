@@ -35,7 +35,7 @@ function Dashboard() {
 
       {/* Right side of the dashboard */}
 
-      <div className="flex flex-col w-1/4 h-full gap-4">
+      <div className="flex flex-col w-1/2 h-full gap-4">
         {/* Login container */}
         <LoginContainer
           email=""
@@ -45,14 +45,15 @@ function Dashboard() {
         />
 
         {/* Order summary view */}
-        <motion.div
+        {/* Hid to do some testing */}
+        {/* <motion.div
           className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8"
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           orderSummaryView
-        </motion.div>
+        </motion.div> */}
       </div>
     </div>
   );
