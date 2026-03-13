@@ -1,4 +1,4 @@
-class Employee{
+export default class Employee{
   constructor(employeeId, firstName, lastName, email, phone, roleId, pinHash, active=true){
     this.employeeid = employeeId;
     this.firstName = firstName;
@@ -10,5 +10,3 @@ class Employee{
     this.active = active;
   }
 }
-
-export { Employee };
