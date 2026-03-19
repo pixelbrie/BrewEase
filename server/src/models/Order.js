@@ -1,7 +1,11 @@
 import { Timestamp } from 'firebase-admin/firestore';
 
 export default class Order {
+<<<<<<< HEAD
   constructor({ orderId, orderSource, paymentStatus, fulfillmentStatus, subtotal, tax, tip, totalPrice, createdAt, customerId=null, employeeId=null, items=[] }) {
+=======
+  constructor(orderId, orderSource, paymentStatus, fulfillmentStatus, subtotal, tax, tip, totalPrice, createdAt, customerId=null, employeeId=null, items=[]) {
+>>>>>>> 9159b27 (feat: finished models)
     this.orderId = orderId;
     this.customerId = customerId;
     this.employeeId = employeeId;
