@@ -1,6 +1,6 @@
 import React from "react";
 import FilterContainer from "../../layouts/FilterContainer.js";
-import LoginContainer from "../../layouts/LoginContainer.js";
+import LoginContainer from "../../layouts/MasterAuthContainer.js";
 import { motion, animate } from "motion/react";
 
 function Dashboard() {
