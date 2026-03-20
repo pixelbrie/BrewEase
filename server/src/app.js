@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import testFirestoreRouter from "./routes/testFirestore.js"
+import customerRouter from "./routes/customerRoutes.js"
 
 const app = express()
 
@@ -12,5 +13,6 @@ app.get("/", (req, res) => {
 })
 
 app.use("/api", testFirestoreRouter)
+app.use("/api/customers", customerRouter)
 
 export default app
