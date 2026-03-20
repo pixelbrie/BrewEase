@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase-admin/firestore';
 
 export default class Payment {
-  constructor(paymentId, orderId, provider, status, amount, paymentMethod, createdAt, transactionId=null, last4=null) {
+  constructor({ paymentId, orderId, provider, status, amount, paymentMethod, createdAt, transactionId=null, last4=null }) {
     this.paymentId = paymentId;
     this.orderId = orderId;
     this.provider = provider;

@@ -1,5 +1,5 @@
 export default class Setting {
-  constructor(settingId, cafeName, address, timezone, currency, taxRate) {
+  constructor({ settingId, cafeName, address, timezone, currency, taxRate }) {
     this.settingId = settingId;
     this.cafeName = cafeName;
     this.address = address;
