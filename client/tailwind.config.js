@@ -5,6 +5,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        inter: ["Inter", "sans-serif"],
+        nunito: ["Nunito", "sans-serif"],
+      },
       colors: {
         coffee: {
           900: '#811B12',
