@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon -L --watch src src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "seed:docker": "docker compose run --rm --no-deps server node src/scripts/seed.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
