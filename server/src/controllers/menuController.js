@@ -1,6 +1,6 @@
-const menuService = require("../services/menuService");
+import * as menuService from "../services/menuService.js";    
 
-exports.getAllMenu = async (req, res) => {
+export const getAllMenu = async (req, res) => {
     try{
          const items = await menuService.getAllMenu();
         res.json(items);
@@ -10,7 +10,7 @@ exports.getAllMenu = async (req, res) => {
     }
     
 }
-exports.getMenuById = async (req, res) => {
+export const getMenuById = async (req, res) => {
     try{
         const item = await menuService.getMenuById(req.params.id);
 
@@ -25,7 +25,7 @@ exports.getMenuById = async (req, res) => {
     }
 }
 
-exports.createMenuItem = async (req, res) => {
+export const createMenuItem = async (req, res) => {
     try{
         const newItem = await menuService.createMenuItem(req.body);
         res.status(201).json(newItem)
@@ -34,7 +34,7 @@ exports.createMenuItem = async (req, res) => {
         return res.status(500).json({error: "Server error"})
     }
 }
-exports.updateMenuItem = async (req, res) => {
+export const updateMenuItem = async (req, res) => {
     try{
         const updated = await menuService.updateMenuItem(req.params.id, req.body);
 
@@ -50,7 +50,7 @@ exports.updateMenuItem = async (req, res) => {
     }
 };
 
-exports.deleteMenuItem = async (req, res) => {
+export const deleteMenuItem = async (req, res) => {
     try{
         const deleted = await menuService.deleteMenuItem(req.params.id);
 
