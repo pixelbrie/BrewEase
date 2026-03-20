@@ -6,7 +6,6 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import Logo from "../assets/images/BrewEaseLogoTrans.png";
 import toast from "react-hot-toast";
-import { useAuth } from "../contexts/AuthContext";
 
 interface CustomerLoginContainerProps {
   email: string;
