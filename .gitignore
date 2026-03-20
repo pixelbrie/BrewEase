@@ -3,3 +3,72 @@ node_modules
 Dockerfile
 .dockerignore
 client/src/motion.d.ts
+# dependencies
+node_modules/
+**/node_modules/
+
+# env files & secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/secrets/*
+!**/secrets/.gitkeep
+**/serviceAccountKey.json
+**/brewease-2026-firebase-adminsdk-*.json
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# build output
+dist/
+build/
+coverage/
+
+# system/editor files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Docker/local overrides
+docker-compose.override.yml
+
+# optional: ignore local database/cache/temp files
+*.log
+*.tmp
+# dependencies
+node_modules/
+**/node_modules/
+
+# env files
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# build output
+dist/
+build/
+coverage/
+
+# system/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker/local overrides
+docker-compose.override.yml
+
+# optional: ignore local database/cache/temp files
+*.log
+*.tmp

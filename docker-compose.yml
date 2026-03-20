@@ -5,8 +5,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./server:/app
-      - /app/node_modules
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+      - ./server/src/config/secrets/serviceAccountKey.json:/usr/src/app/src/config/secrets/serviceAccountKey.json:ro
     command: npm run dev
 
   client:
