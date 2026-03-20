@@ -88,6 +88,8 @@ const login = async (req, res) => {
         // Look up the user by email in Firebase Authentication
         const userRecord = await admin.auth().getUserByEmail(email);
 
+        // Verify the provided password by using Firebase Authentication's signInWithEmailAndPassword method
+
         // Extract the user's UID
         const uid = userRecord.uid;
 

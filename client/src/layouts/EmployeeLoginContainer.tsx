@@ -28,7 +28,10 @@ const EmployeeLoginContainer = ({
         Employee login coming soon!
       </p>
 
-      <div className="">
+      <div
+        className="flex items-center justify-center mt-6 text-coffee-700 font-bold cursor-pointer"
+        onClick={onClose}
+      >
         Back
         <IoClose />
       </div>

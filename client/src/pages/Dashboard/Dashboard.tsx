@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import FilterContainer from "../../layouts/FilterContainer.js";
 import LoginContainer from "../../layouts/MasterAuthContainer.js";
 import { motion, animate } from "motion/react";
 
 function Dashboard() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   return (
     // Main container for the dashboard page
     <div className="flex flex-row justify-start items-start h-screen w-screen gap-4 p-8 bg-coffee-300">
@@ -12,10 +14,10 @@ function Dashboard() {
       <div className="flex flex-col w-1/2 h-full gap-4">
         {/* Login container */}
         <LoginContainer
-          email=""
-          password=""
-          onEmailChange={() => {}}
-          onPasswordChange={() => {}}
+          email={email}
+          password={password}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
         />
 
         {/* Order summary view */}

@@ -28,13 +28,13 @@ const SelectionLoginContainer = ({
           icon={MemberChoiceImg}
           className="h-full"
         />
-        {/* <LoginChoice
+        <LoginChoice
           label="Guest"
           description="Continue as a guest without creating an account"
           onClick={() => onSelect("guest")}
           icon={GuestChoiceImg}
           className="h-full"
-        /> */}
+        />
         <LoginChoice
           label="Employee"
           description="Login as an Employee to manage orders, inventory, and more"

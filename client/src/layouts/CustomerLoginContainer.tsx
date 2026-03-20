@@ -5,6 +5,8 @@ import Button from "../components/Button";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import Logo from "../assets/images/BrewEaseLogoTrans.png";
+import toast from "react-hot-toast";
+import { useAuth } from "../contexts/AuthContext";
 
 interface CustomerLoginContainerProps {
   email: string;
@@ -21,6 +23,17 @@ const CustomerLoginContainer = ({
   onPasswordChange,
   onClose,
 }: CustomerLoginContainerProps) => {
+  const handleLogin = () => {
+    // Implement your login logic here, e.g., call an API to authenticate the user
+
+    toast.success(
+      "Login button clicked with email: " +
+        email +
+        " and password: " +
+        password,
+    );
+  };
+
   return (
     <motion.div
       initial={{ y: 30, opacity: 0 }}
@@ -46,28 +59,25 @@ const CustomerLoginContainer = ({
         type="email"
         icon={<FaEnvelope />}
         value={email}
-        onChange={(e) => onEmailChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onEmailChange(e.target.value)
+        }
       />
       <Input
         placeholder="Password"
         type="password"
         value={password}
         icon={<FaLock />}
-        onChange={(e) => onPasswordChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onPasswordChange(e.target.value)
+        }
       />
       <Button
         label="Login"
         className="w-full justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
         variant="secondary"
         size="large"
-        onClick={() =>
-          console.log(
-            "Login button clicked with email: " +
-              email +
-              " and password: " +
-              password,
-          )
-        }
+        onClick={handleLogin}
       />
       <span className="text-sm text-neutral-400">
         Don't have an account?{" "}
