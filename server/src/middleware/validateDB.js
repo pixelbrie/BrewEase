@@ -1,10 +1,10 @@
-import { db } from "./firebaseAdmin.js"
+import { db } from "../config/firebaseAdmin.js"
 
 export async function validateDB() {
   try {
-    console.log("Checking Cloud Firestore DB connection...")
+    console.log("\nChecking Firestore DB connection...")
     await db.collection("dothiswork_questionmark").doc("idk").get()
-    console.log("Firestore connection successful!")
+    console.log("Firestore connection successful!\n")
     return true
   } catch (error) {
     console.error("Firestore connection failed!")
