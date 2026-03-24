@@ -7,7 +7,9 @@
     "dev": "nodemon -L --watch src src/server.js",
     "start": "node src/server.js",
     "seed": "node src/scripts/seed.js",
-    "seed:docker": "docker compose run --rm --no-deps server node src/scripts/seed.js"
+    "teardown": "node src/scripts/teardown.js",
+    "seed:docker": "docker compose run -T --rm --no-deps server node src/scripts/seed.js",
+    "teardown:docker": "docker compose run -T --rm --no-deps server node src/scripts/teardown.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
