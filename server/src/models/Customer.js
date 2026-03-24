@@ -1,7 +1,7 @@
 import { Timestamp } from 'firebase-admin/firestore';
 
 export default class Customer{
-  constructor(customerId, firstName, lastName, email, phone, loyaltyPoints=0){
+  constructor({ customerId, firstName, lastName, email, phone, loyaltyPoints=0 }){
     this.customerId = customerId;
     this.firstName = firstName;
     this.lastName = lastName || null;

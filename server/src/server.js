@@ -2,9 +2,9 @@ import app from "./app.js"
 import dotenv from "dotenv"
 import { validateDB } from './middleware/validateDB.js'
 
-dotenv.config()
+dotenv.config();
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 8080;
 
 // async to handle awaiting for DB validation.
 async function startServer(){
@@ -13,7 +13,8 @@ async function startServer(){
 
   // If the program is still alive, DB is good so the server is good to start.
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Local: https://localhost:${PORT}\n`);
   });
 }
 

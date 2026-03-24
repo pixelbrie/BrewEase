@@ -1,6 +1,6 @@
 export default class Employee{
-  constructor(employeeId, firstName, lastName, email, phone, roleId, pinHash, active=true){
-    this.employeeid = employeeId;
+  constructor({ employeeId, firstName, lastName, email, phone, roleId, pinHash, active=true }){
+    this.employeeId = employeeId;
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
