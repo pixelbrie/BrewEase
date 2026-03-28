@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import FilterContainer from "../../layouts/FilterContainer.js";
+import CustomerInfoSection from "../../layouts/CustomerInfoSection.js";
+import OrderInfo from "../../layouts/OrderInfo.js";
+import UserInfoSection from "../../layouts/UserInfoSection.js";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
@@ -7,6 +10,9 @@ import { useAuth } from "../../context/AuthContext.js";
 function Dashboard() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
+  const [customerStep, setCustomerStep] = useState<"customer" | "order">(
+    "customer"
+  );
 
   const handleLogout = async () => {
     try {
@@ -20,62 +26,63 @@ function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
-        <p className="text-xl font-semibold text-coffee-900">Loading dashboard...</p>
+        <p className="text-xl font-semibold text-coffee-900">
+          Loading dashboard...
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-row justify-start items-start h-screen w-screen gap-4 p-8 bg-coffee-300">
-      <div className="flex flex-col w-1/2 h-full gap-4">
-        <motion.div
-          className="flex flex-col w-full bg-white rounded-lg shadow-lg p-8 gap-4"
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="flex flex-col gap-2">
-            <h1 className="text-3xl font-bold text-coffee-900">
-              Welcome, {user?.displayName || "User"}
-            </h1>
-
-            <p className="text-neutral-600">
-              Signed in as {user?.email || "No email found"}
-            </p>
-
-            <p className="text-neutral-600">
-              Role: <span className="font-semibold">{user?.role || "No role found"}</span>
-            </p>
-
-            <p className="text-neutral-600">
-              Tenant: <span className="font-semibold">{user?.tenantId || "No tenant found"}</span>
-            </p>
-          </div>
-
-          <div className="flex flex-row gap-3 pt-2">
-            <button
-              onClick={handleLogout}
-              className="bg-coffee-700 text-white font-bold py-3 px-6 rounded-full"
-            >
-              Sign Out
-            </button>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="flex flex-col w-3/4 gap-4 h-full">
-        <div>
-          <FilterContainer />
+    <div className="flex flex-row items-start h-screen w-screen gap-2 p-8 bg-coffee-300">
+      {/* Left Column */}
+      <div className="flex flex-col w-3/4 h-full items-start justify-start gap-2 min-h-0">
+        {/* User Info Section */}
+        <div className="flex flex-col w-full basis-1/4 min-h-0">
+          <UserInfoSection
+            displayName={user?.displayName ?? null}
+            role={user?.role ?? null}
+            tenantId={user?.tenantId ?? null}
+            onLogout={handleLogout}
+          />
         </div>
 
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8"
-        >
-          menuView
-        </motion.div>
+        {/* Customer Info Section and Order Info Section */}
+        <div className="flex flex-col w-full basis-3/4 min-h-0">
+          {customerStep === "customer" ? (
+            <CustomerInfoSection onNext={() => setCustomerStep("order")} />
+          ) : (
+            <OrderInfo
+              items={[]}
+              onBack={() => setCustomerStep("customer")}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Right Column */}
+      <div className="flex flex-col w-full h-full gap-2 min-h-0">
+        <div className="flex w-full basis-1/4 min-h-0">
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="flex w-full h-full"
+          >
+            <FilterContainer />
+          </motion.div>
+        </div>
+
+        <div className="flex w-full basis-3/4 min-h-0">
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8"
+          >
+            menuView
+          </motion.div>
+        </div>
       </div>
     </div>
   );
