@@ -1,4 +1,3 @@
-import bcrypt from "bcrypt";
 import { auth, db } from "../config/firebaseAdmin.js";
 import { FieldValue } from "firebase-admin/firestore";
 
@@ -15,26 +14,13 @@ async function generateUniquePin() {
   while (!isUnique) {
     pin = generateFourDigitPin();
 
-    const snapshot = await db.collection("users").get();
+    const snapshot = await db
+      .collection("users")
+      .where("pin", "==", pin)
+      .limit(1)
+      .get();
 
-    let foundMatch = false;
-
-    for (const doc of snapshot.docs) {
-      const user = doc.data();
-
-      if (!user.pinHash) {
-        continue;
-      }
-
-      const isMatch = await bcrypt.compare(pin, user.pinHash);
-
-      if (isMatch) {
-        foundMatch = true;
-        break;
-      }
-    }
-
-    if (!foundMatch) {
+    if (snapshot.empty) {
       isUnique = true;
     }
   }
@@ -50,7 +36,6 @@ export const signup = async (req, res) => {
       password,
       displayName,
       role,
-      tenantId,
       firstName,
       lastName,
     } = req.body;
@@ -73,7 +58,6 @@ export const signup = async (req, res) => {
     }
 
     const generatedPin = await generateUniquePin();
-    const hashedPin = await bcrypt.hash(generatedPin, 10);
 
     const userRecord = await auth.createUser({
       email,
@@ -90,8 +74,7 @@ export const signup = async (req, res) => {
       firstName: firstName || null,
       lastName: lastName || null,
       role,
-      tenantId: tenantId || null,
-      pinHash: hashedPin,
+      pin: generatedPin,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
@@ -103,8 +86,7 @@ export const signup = async (req, res) => {
       firstName: firstName || null,
       lastName: lastName || null,
       role,
-      tenantId: tenantId || null,
-      generatedPin,
+      pin: generatedPin,
       message: "User created successfully",
     });
   } catch (error) {
@@ -122,7 +104,6 @@ export const signup = async (req, res) => {
 };
 
 // POST /api/auth/login
-// DEV ONLY: this does not securely verify Firebase email/password.
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -172,32 +153,17 @@ export const pinLogin = async (req, res) => {
       return res.status(400).json({ error: "PIN must be exactly 4 digits" });
     }
 
-    const snapshot = await db.collection("users").get();
+    const snapshot = await db
+      .collection("users")
+      .where("pin", "==", pin)
+      .limit(1)
+      .get();
 
     if (snapshot.empty) {
       return res.status(401).json({ error: "Invalid PIN" });
     }
 
-    let matchedUser = null;
-
-    for (const doc of snapshot.docs) {
-      const user = doc.data();
-
-      if (!user.pinHash) {
-        continue;
-      }
-
-      const isMatch = await bcrypt.compare(pin, user.pinHash);
-
-      if (isMatch) {
-        matchedUser = user;
-        break;
-      }
-    }
-
-    if (!matchedUser) {
-      return res.status(401).json({ error: "Invalid PIN" });
-    }
+    const matchedUser = snapshot.docs[0].data();
 
     if (!["admin", "manager", "barista", "kitchen"].includes(matchedUser.role)) {
       return res.status(403).json({ error: "Role not allowed for POS access" });
@@ -209,7 +175,7 @@ export const pinLogin = async (req, res) => {
       uid: matchedUser.uid,
       displayName: matchedUser.displayName,
       role: matchedUser.role,
-      tenantId: matchedUser.tenantId,
+      pin: matchedUser.pin,
       message: "PIN login successful",
     });
   } catch (error) {
@@ -271,7 +237,7 @@ export const getCurrentUser = async (req, res) => {
       firstName: userData.firstName ?? null,
       lastName: userData.lastName ?? null,
       role: userData.role,
-      tenantId: userData.tenantId ?? null,
+      pin: userData.pin,
       createdAt: userData.createdAt ?? null,
       updatedAt: userData.updatedAt ?? null,
     });
@@ -318,7 +284,7 @@ export const getAllUsers = async (req, res) => {
         firstName: data.firstName ?? null,
         lastName: data.lastName ?? null,
         role: data.role,
-        tenantId: data.tenantId ?? null,
+        pin: data.pin,
       };
     });
 

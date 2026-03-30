@@ -5,7 +5,7 @@ interface AppUser {
   email: string;
   displayName: string;
   role: string;
-  tenantId: string | null;
+  pin: string;
 }
 
 interface AuthContextType {
@@ -28,7 +28,7 @@ async function parseJsonSafely(response: Response) {
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error(`Expected JSON but got: ${text.slice(0, 120)}`);
+    return null;
   }
 }
 
@@ -44,6 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const data = await parseJsonSafely(response);
+
+      if (response.status === 401) {
+        setUser(null);
+        return;
+      }
 
       if (!response.ok) {
         setUser(null);
