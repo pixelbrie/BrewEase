@@ -36,7 +36,7 @@ function Button({
     case "primary":
       return (
         <button
-          className={`flex flex-row bg-coffee-600 hover:bg-coffee-900 text-white font-bold py-6 px-32 rounded-full ${size === "small" ? "text-sm" : size === "large" ? "text-lg" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+          className={`flex flex-row bg-coffee-600 text-white font-bold py-6 rounded-lg ${size === "small" ? "text-sm" : size === "large" ? "text-lg" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
           onClick={onClick}
           disabled={disabled}
         >
@@ -49,7 +49,7 @@ function Button({
     case "secondary":
       return (
         <button
-          className={`flex flex-row hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-full ${size === "small" ? "text-sm" : size === "large" ? "text-lg" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+          className={`flex flex-row active:bg-coffee-900 text-white font-bold py-4 px-8 rounded-lg w-full ${size === "small" ? "text-sm" : size === "large" ? "text-lg" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
           onClick={onClick}
           disabled={disabled}
         >
@@ -62,7 +62,7 @@ function Button({
     default:
       return (
         <button
-          className={`flex flex-row bg-coffee-500 hover:bg-coffee-700 text-white font-bold py-6 px-32 rounded-full ${size === "small" ? "text-sm" : size === "large" ? "text-lg" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+          className={`flex flex-row bg-coffee-500 hover:bg-coffee-700 text-white font-bold py-6 px-32 rounded-lg ${size === "small" ? "text-sm" : size === "large" ? "text-lg" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
           onClick={onClick}
           disabled={disabled}
         >
