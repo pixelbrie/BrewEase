@@ -1,4 +1,4 @@
-import { db } from "../config/firebase.js";
+import { db } from "../config/firebaseAdmin.js";
 import { FieldValue } from "firebase-admin/firestore";
 
 const ordersCollection = db.collection("orders");

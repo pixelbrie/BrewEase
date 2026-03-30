@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
-import testFirestoreRouter from "./routes/testFirestore.js"
 import orderRoutes from "./routes/orderRoutes.js"
+import authRoutes from "./routes/authRoutes.js"
 
 const app = express()
 
@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.json({ message: "BrewEase API running" })
 })
 
-app.use("/api", testFirestoreRouter)
-app.use("/orders", orderRoutes)
+app.use("/api/auth", authRoutes)
+app.use("/api/orders", orderRoutes)
 
 export default app
