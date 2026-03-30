@@ -4,13 +4,13 @@ import BeanLeafHero from "../assets/images/LeafandBeanHero.png";
 import { LuShoppingBasket } from "react-icons/lu";
 
 interface CustomerInfoSectionProps {
-  onNext: () => void;
+  onNext: () => void; // Callback function to proceed to the next step (Order Info) after submitting customer info
 }
 
 function CustomerInfoSection({ onNext }: CustomerInfoSectionProps) {
   const handleCustomerInfoSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Add logic here to handle customer info submission API calls,
+    // TODO: Add logic here to handle customer info submission API calls,
     // such as validating input and fetching customer data.
     // For this example, we'll just call onNext to proceed.
     onNext(); // moves to the Order Info section after submission.
@@ -30,7 +30,9 @@ function CustomerInfoSection({ onNext }: CustomerInfoSectionProps) {
     >
       <div className="flex flex-1 flex-col p-6 w-full mt-[20%]">
         <div className="flex flex-col gap-2">
-          <h2 className="text-2xl font-bold text-coffee-900">Customer Info</h2>
+          <h2 className="text-lg font-bold uppercase tracking-[0.2em] text-coffee-600">
+            Customer Info
+          </h2>
           <p className="text-md text-neutral-500 mb-4">
             Look up a customer by name or order number.
           </p>
