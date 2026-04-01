@@ -100,9 +100,82 @@ const attachCustomerToOrder = async (orderId, customerId) => {
   }
 
   await orderCollection.doc(orderId).update({ customerId });
-
+  await updateLastVisit(customerId);
   return { orderId, customerId };
 };
+
+// ========================
+// Track Total Spent
+// ======================== 
+
+const updateTotalSpent = async (customerId, amount) => {
+  if (!customerId) {
+    throw new Error("customerId is required");
+  }
+  if(typeof amount !== "number" || amount <= 0) {
+    throw new Error("amount must be a positive number");
+  }
+
+  const customerRef = customerCollection.doc(customerId);
+  await customerRef.update({
+    totalSpent: admin.firestore.FieldValue.increment(amount),
+  });
+}
+
+// ========================
+// Order History
+// ======================== 
+
+const getOrderHistory = async (customerId) => {
+  if (!customerId) {
+    throw new Error("customerId is required");
+  }
+
+  const snapshot = await orderCollection
+    .where("customerId", "==", customerId)
+    .orderBy("createdAt", "desc")
+    .get();
+
+  if (snapshot.empty) return [];
+
+  return snapshot.docs.map((doc) => ({ orderId: doc.id, ...doc.data() }));
+};
+
+// ========================
+// Update Loyalty Points
+// ======================== 
+
+const updateLoyaltyPoints = async (customerId, points) => {
+  if (!customerId) {
+    throw new Error("customerId is required");
+  }
+  if (typeof points !== "number") {
+    throw new Error("points must be a number");
+  }
+
+  const customerRef = customerCollection.doc(customerId);
+  await customerRef.update({
+    loyaltyPoints: admin.firestore.FieldValue.increment(points),
+  });
+};
+
+// ========================
+// Last Visit Tracking
+// ======================== 
+
+const updateLastVisit = async (customerId) => {
+  if (!customerId) {
+    throw new Error("customerId is required");
+  }
+
+  const customerRef = customerCollection.doc(customerId);
+  await customerRef.update({
+    lastVisit: admin.firestore.FieldValue.serverTimestamp(),
+  });
+};
+
+
+
 
 export {
   createCustomer,
@@ -111,4 +184,8 @@ export {
   getCustomerByPhone,
   lookupCustomer,
   attachCustomerToOrder,
+  updateTotalSpent,
+  getOrderHistory,
+  updateLoyaltyPoints,
+  updateLastVisit,
 }
