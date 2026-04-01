@@ -33,7 +33,7 @@ function FilterButtonTea({
     <motion.div
       id="filter-button"
       onClick={handlePress}
-      className={`w-full h-1/8 rounded-2xl flex items-start text-left p-8 cursor-pointer shadow-lg ${className}`}
+      className={`w-full h-full rounded-2xl flex items-start text-left p-8 cursor-pointer shadow-lg ${className}`}
       style={{
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",
