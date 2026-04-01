@@ -1,63 +1,26 @@
-// services/menuService.js
-import PurchasableItem from "../models/PurchasableItem.js";
-
-let items = [
-  new PurchasableItem("1", "Burger", "food", 5.99),
-  new PurchasableItem("2", "Pizza", "food", 8.99)
-];
-
-let nextId = 3
-
-// get all items
-function getAllMenu() {
-  return items;
+export async function getAllMenu() {
+    const ss = await db.collection('purchaseableItems').get();
+    return ss.docs.map(doc =>({
+        itemId: doc.id, ...doc.data()}));
 }
 
-// get item by ID
-function getMenuById(itemId) {
-  return items.find(item => item.itemId === itemId) || null;
+export async function getMenuById(itemId) {
+    const doc = await db.collection('purchaseableItems').doc(itemId).get();
+    if(!doc.exists) return null;
+    return {itemId: doc.id, ...doc.data()}
 }
 
-// create a new item
-function createMenuItem(data) {
-  const newItem = new PurchasableItem(
-    String(nextId++), 
-    data.itemName,
-    data.categoryId,
-    data.basePrice,
-    data.description || null,
-    data.previewImage || null,
-    data.sizes || [],
-    data.flavors || [],
-    data.available ?? true,
-    data.taxable ?? true
-  );
-  items.push(newItem);
-  return newItem;
+export async function createMenuItem(item) {
+    const docRef = await db.collection('purchaseableItems').add(item);
+    return {itemId: docRef.id, ...item};
 }
 
-// update an existing item
-function updateMenuItem(itemId, update) {
-  const item = items.find(item => item.itemId === itemId);
-  if (!item) return null;
-
-  Object.assign(item, update);
-  return item;
+export async function updateMenuItem(itemId, update) {
+    await db.collection('purchaseableItems').doc(itemId).update(update);
+    return { itemId, ...update} 
 }
 
-// delete an item
-function deleteMenuItem(itemId) {
-  const index = items.findIndex(item => item.itemId === itemId);
-  if (index === -1) return null;
-
-  return items.splice(index, 1)[0];
+export async function deleteMenuItem(itemId) {
+    await db.collection('purchaseableItems').doc(itemId).delete();
+    return {itemId, message: "Menu Item Deleted"};
 }
-
-// export functions for controller
-export {
-  getAllMenu,
-  getMenuById,
-  createMenuItem,
-  updateMenuItem,
-  deleteMenuItem
-};
