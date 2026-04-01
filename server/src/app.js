@@ -1,5 +1,6 @@
-import express from "express";
-import cors from "cors";
+import express from "express"
+import cors from "cors"
+import customerRouter from "./routes/customerRoutes.js"
 import session from "express-session";
 import authRoutes from "./routes/authRoutes.js";
 
@@ -43,6 +44,7 @@ app.get("/", (req, res) => {
   res.json({ message: "BrewEase API running" });
 });
 
+app.use("/api/customers", customerRouter)
 app.use("/api/auth", authRoutes);
 
 export default app;
