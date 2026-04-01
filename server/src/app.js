@@ -1,14 +1,8 @@
-<<<<<<< HEAD
 import express from "express"
 import cors from "cors"
-import testFirestoreRouter from "./routes/testFirestore.js"
 import customerRouter from "./routes/customerRoutes.js"
-=======
-import express from "express";
-import cors from "cors";
 import session from "express-session";
 import authRoutes from "./routes/authRoutes.js";
->>>>>>> origin/main
 
 const app = express();
 const allowedOrigins = new Set([
@@ -50,11 +44,7 @@ app.get("/", (req, res) => {
   res.json({ message: "BrewEase API running" });
 });
 
-<<<<<<< HEAD
-app.use("/api", testFirestoreRouter)
 app.use("/api/customers", customerRouter)
-=======
 app.use("/api/auth", authRoutes);
->>>>>>> origin/main
 
 export default app;

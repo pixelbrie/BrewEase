@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import { initializeApp, cert } from 'firebase-admin/app'
-import { getFirestore } from 'firebase-admin/firestore'
-import { getAuth } from 'firebase-admin/auth'
-import serviceAccount from './secrets/serviceAccountKey.json' with { type: 'json' }
-=======
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getAuth } from "firebase-admin/auth";
@@ -49,6 +43,5 @@ const firebaseAdminApp = initializeApp({
 
 const db = getFirestore(firebaseAdminApp);
 const auth = getAuth(firebaseAdminApp);
->>>>>>> origin/main
 
 export { firebaseAdminApp, db, auth };

@@ -90,7 +90,7 @@ const attachCustomerToOrder = async (req, res) => {
 
     return res.status(200).json(result);
   } catch (err) {
-    if (err.message === "Customer not found") {
+    if (err.message === "Customer not found")   {
       return res.status(404).json({ error: err.message });
     }
     console.error(err);
