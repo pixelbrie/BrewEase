@@ -1,50 +1,70 @@
-import React, { useState } from "react";
-import FilterButtonCoffee from "../components/FilterButtonCoffee.js";
-import FilterButtonTea from "../components/FilterButtonTea.js";
-import bgFilterCoffee from "../assets/images/bg-filterButton-coffee.png";
-import bgFilterTea from "../assets/images/bg-filterButton-matcha.png";
-import { motion, animate } from "motion/react";
+import React from "react";
+import { motion } from "motion/react";
 
-function FilterContainer() {
-  const [selectedFilter, setSelectedFilter] = useState(true);
+type FilterCategory = "all" | "coffee" | "tea" | "latte";
 
-  const handleCoffeeClick = () => {
-    setSelectedFilter(true);
-  };
+interface FilterContainerProps {
+  selectedCategory: FilterCategory;
+  onSelectCategory: (category: FilterCategory) => void;
+}
 
-  const handleTeaClick = () => {
-    setSelectedFilter(false);
-  };
+function FilterContainer({
+  selectedCategory,
+  onSelectCategory,
+}: FilterContainerProps) {
+  const baseButtonClass =
+    "px-4 py-3 rounded-lg font-semibold transition border text-sm md:text-base";
 
   return (
     <motion.div
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className="flex flex-row justify-center items-center h-full w-full gap-2 "
+      className="flex flex-row flex-wrap justify-center items-center h-full w-full gap-2 bg-white rounded-lg shadow-lg p-4"
     >
-      <FilterButtonTea
-        className={
-          !selectedFilter
-            ? "transition-opacity duration-300 opacity-100"
-            : "opacity-50"
-        }
-        label="Tea"
-        subLabel="12 items"
-        bgImage={bgFilterTea}
-        onClick={handleTeaClick}
-      />
-      <FilterButtonCoffee
-        className={
-          selectedFilter
-            ? "transition-opacity duration-300 opacity-100"
-            : "opacity-50"
-        }
-        label="Coffee"
-        subLabel="20 items"
-        bgImage={bgFilterCoffee}
-        onClick={handleCoffeeClick}
-      />
+      <button
+        onClick={() => onSelectCategory("all")}
+        className={`${baseButtonClass} ${
+          selectedCategory === "all"
+            ? "bg-coffee-800 text-white border-coffee-800"
+            : "bg-coffee-50 text-coffee-800 border-coffee-200"
+        }`}
+      >
+        All
+      </button>
+
+      <button
+        onClick={() => onSelectCategory("coffee")}
+        className={`${baseButtonClass} ${
+          selectedCategory === "coffee"
+            ? "bg-coffee-800 text-white border-coffee-800"
+            : "bg-coffee-50 text-coffee-800 border-coffee-200"
+        }`}
+      >
+        Coffee
+      </button>
+
+      <button
+        onClick={() => onSelectCategory("tea")}
+        className={`${baseButtonClass} ${
+          selectedCategory === "tea"
+            ? "bg-coffee-800 text-white border-coffee-800"
+            : "bg-coffee-50 text-coffee-800 border-coffee-200"
+        }`}
+      >
+        Tea
+      </button>
+
+      <button
+        onClick={() => onSelectCategory("latte")}
+        className={`${baseButtonClass} ${
+          selectedCategory === "latte"
+            ? "bg-coffee-800 text-white border-coffee-800"
+            : "bg-coffee-50 text-coffee-800 border-coffee-200"
+        }`}
+      >
+        Lattes
+      </button>
     </motion.div>
   );
 }

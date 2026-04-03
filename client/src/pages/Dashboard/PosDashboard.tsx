@@ -1,0 +1,175 @@
+import React, { useState } from "react";
+import FilterContainer from "../../layouts/FilterContainer.js";
+import UserInfoSection from "../../layouts/UserInfoSection.js";
+import CustomerLookupCard, {
+  type Customer,
+} from "../../layouts/CustomerLookupCard.js";
+import CartSummary, { type CartItem } from "../../layouts/CartSummary.js";
+import MenuGrid from "../../pos/MenuGrid.js";
+import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext.js";
+
+type MenuItem = {
+  id: string;
+  name: string;
+  price: number;
+  category: "coffee" | "tea" | "latte";
+};
+
+type ModifierSelection = {
+  size: "small" | "medium" | "large";
+  milk: "whole" | "oat" | "almond";
+  note: string;
+};
+
+function generateDailyOrderNumber() {
+  const date = new Date();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const random = Math.floor(1000 + Math.random() * 9000);
+  return `${month}${day}-${random}`;
+}
+
+function PosDashboard() {
+  const navigate = useNavigate();
+  const { user, logout, loading } = useAuth();
+
+  const [selectedCategory, setSelectedCategory] = useState<
+    "all" | "coffee" | "tea" | "latte"
+  >("all");
+
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [orderNumber] = useState(generateDailyOrderNumber());
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  const [menuItems] = useState<MenuItem[]>([
+    { id: "1", name: "Latte", price: 4.5, category: "latte" },
+    { id: "2", name: "Vanilla Latte", price: 5.0, category: "latte" },
+    { id: "3", name: "Cappuccino", price: 3.5, category: "coffee" },
+    { id: "4", name: "Espresso", price: 2.75, category: "coffee" },
+    { id: "5", name: "Matcha", price: 5.25, category: "tea" },
+    { id: "6", name: "Chai Tea Latte", price: 4.0, category: "tea" },
+  ]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
+  const handleAddToCart = (
+    menuItem: MenuItem,
+    modifiers: ModifierSelection,
+    finalPrice: number,
+  ) => {
+    const modifierKey = `${menuItem.id}-${modifiers.size}-${modifiers.milk}-${modifiers.note.trim()}`;
+
+    setCartItems((currentItems) => {
+      const existingItem = currentItems.find((item) => item.id === modifierKey);
+
+      if (existingItem) {
+        return currentItems.map((item) =>
+          item.id === modifierKey
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        );
+      }
+
+      return [
+        ...currentItems,
+        {
+          id: modifierKey,
+          name: menuItem.name,
+          price: finalPrice,
+          quantity: 1,
+          modifiers,
+        },
+      ];
+    });
+  };
+
+  const filteredMenuItems =
+    selectedCategory === "all"
+      ? menuItems
+      : menuItems.filter((item) => item.category === selectedCategory);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
+        <p className="text-xl font-semibold text-coffee-900">Loading POS...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-row items-start h-screen w-screen gap-2 p-8 bg-coffee-300">
+      <div className="flex flex-col w-3/4 h-full gap-2 min-h-0">
+        <div className="w-full shrink-0">
+          <UserInfoSection
+            displayName={user?.displayName ?? null}
+            role={user?.role ?? null}
+            tenantId={null}
+            onLogout={handleLogout}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-2 flex-1 min-h-0">
+          <div className="min-h-0 overflow-y-auto">
+            <CustomerLookupCard
+              selectedCustomer={selectedCustomer}
+              onCustomerSelect={setSelectedCustomer}
+            />
+          </div>
+
+          <div className="min-h-0">
+            <CartSummary
+              customer={selectedCustomer}
+              orderNumber={orderNumber}
+              items={cartItems}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col w-full h-full gap-2 min-h-0">
+        <div className="flex w-full shrink-0 min-h-[110px]">
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="flex w-full h-full"
+          >
+            <FilterContainer
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+          </motion.div>
+        </div>
+
+        <div className="flex-1 min-h-0">
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-6 overflow-y-auto gap-4"
+          >
+            <div className="flex-1 min-h-0">
+              <MenuGrid
+                items={filteredMenuItems}
+                onAddToCart={handleAddToCart}
+              />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default PosDashboard;

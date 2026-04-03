@@ -1,41 +1,48 @@
 import React, { useState } from "react";
-import FilterContainer from "../../layouts/FilterContainer.js";
-import CustomerInfoSection from "../../layouts/CustomerInfoSection.js";
-import OrderInfo from "../../layouts/OrderInfo.js";
-import OrderReadySplash from "../../layouts/OrderReadySplash.js";
-import UserInfoSection from "../../layouts/UserInfoSection.js";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
+import UserInfoSection from "../../layouts/UserInfoSection.js";
 
-// Mock data for order items to demonstrate the OrderInfo component.
-// In a real application, this data would come from an API call based on the selected customer/order.
-const mockOrderItems = [
-  { id: "1", name: "Cappuccino", quantity: 2, price: 3.5 },
-  { id: "2", name: "Blueberry Muffin", quantity: 1, price: 2.0 },
-  { id: "3", name: "Iced Matcha Latte", quantity: 1, price: 5.25 },
-  { id: "4", name: "Espresso", quantity: 2, price: 2.75 },
-  { id: "5", name: "Chocolate Croissant", quantity: 1, price: 3.95 },
-  { id: "6", name: "Vanilla Cold Brew", quantity: 1, price: 4.5 },
-  { id: "7", name: "Chai Tea Latte", quantity: 3, price: 4.0 },
-];
+type BaristaView = "schedule" | "training";
 
 function Dashboard() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
-  const [customerStep, setCustomerStep] = useState<"customer" | "order">(
-    "customer",
-  );
-  const [showOrderReadySplash, setShowOrderReadySplash] = useState(false);
+  const [activeView, setActiveView] = useState<BaristaView>("schedule");
+  const [isClockedIn, setIsClockedIn] = useState(false);
+  const [lastClockAction, setLastClockAction] = useState("Not clocked in yet");
 
-  // Handles user logout by calling the logout function from the auth context
-  // and navigating back to the login page.
+  const mockSchedule = [
+    { id: 1, day: "Monday", shift: "9:00 AM - 2:00 PM", location: "Main Cafe" },
+    { id: 2, day: "Wednesday", shift: "11:00 AM - 5:00 PM", location: "Main Cafe" },
+    { id: 3, day: "Friday", shift: "8:00 AM - 1:00 PM", location: "Main Cafe" },
+  ];
+
+  const mockTraining = [
+    { id: 1, title: "Milk Steaming Basics", status: "Complete" },
+    { id: 2, title: "POS Order Flow", status: "In Progress" },
+    { id: 3, title: "Customer Service Refresher", status: "Not Started" },
+  ];
+
   const handleLogout = async () => {
     try {
       await logout();
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  };
+
+  const handleClockToggle = () => {
+    const now = new Date().toLocaleString();
+
+    if (isClockedIn) {
+      setIsClockedIn(false);
+      setLastClockAction(`Clocked out at ${now}`);
+    } else {
+      setIsClockedIn(true);
+      setLastClockAction(`Clocked in at ${now}`);
     }
   };
 
@@ -50,72 +57,150 @@ function Dashboard() {
   }
 
   return (
-    <>
-      <div className="flex flex-row items-start h-screen w-screen gap-2 p-8 bg-coffee-300">
-        {/* Left Column */}
-        <div className="flex flex-col w-3/4 h-full items-start justify-start gap-2 min-h-0">
-          {/* User Info Section */}
-          <div className="flex flex-col w-full basis-1/4 min-h-0">
-            <UserInfoSection
-              displayName={user?.displayName ?? null}
-              role={user?.role ?? null}
-              tenantId={user?.tenantId ?? null}
-              onLogout={handleLogout}
-            />
-          </div>
-
-          {/* Customer Info Section and Order Info Section */}
-          <div className="flex flex-col w-full basis-3/4 min-h-0">
-            {customerStep === "customer" ? (
-              <CustomerInfoSection onNext={() => setCustomerStep("order")} />
-            ) : (
-              <OrderInfo
-                items={mockOrderItems} // Replace with actual order items when available
-                onBack={() => setCustomerStep("customer")}
-                // For demo purposes, we show the order ready splash immediately after the order info step.
-                // In a real app, this would likely be triggered by an API response indicating the order is ready.
-                onNext={() => setShowOrderReadySplash(true)}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="flex flex-col w-full h-full gap-2 min-h-0">
-          <div className="flex w-full basis-1/4 min-h-0">
-            <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="flex w-full h-full"
-            >
-              {/* Filter container for menu items
-              TODO: Implement filter functionality once the menu API is available */}
-              <FilterContainer />
-            </motion.div>
-          </div>
-
-          <div className="flex w-full basis-3/4 min-h-0">
-            <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-8"
-            >
-              menuView
-            </motion.div>
-          </div>
-        </div>
-      </div>
-      {showOrderReadySplash ? (
-        <OrderReadySplash
-          onClose={() => {
-            setShowOrderReadySplash(false);
-            setCustomerStep("customer");
-          }}
+    <div className="min-h-screen w-screen bg-coffee-300 p-8">
+      <div className="max-w-7xl mx-auto flex flex-col gap-4">
+        <UserInfoSection
+          displayName={user?.displayName ?? null}
+          role={user?.role ?? null}
+          tenantId={null}
+          onLogout={handleLogout}
         />
-      ) : null}
-    </>
+
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="flex w-full min-h-[650px] bg-white rounded-lg shadow-lg overflow-hidden"
+        >
+          <aside className="w-[240px] shrink-0 bg-coffee-900 text-white p-4 flex flex-col gap-3">
+            <h2 className="text-xl font-bold border-b border-coffee-700 pb-3">
+              Employee Portal
+            </h2>
+
+            <button
+              onClick={() => setActiveView("schedule")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "schedule"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              Schedule
+            </button>
+
+            <button
+              onClick={() => setActiveView("training")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "training"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              Training
+            </button>
+
+            <button
+              onClick={() => navigate("/pos")}
+              className="mt-auto w-full text-left px-4 py-3 rounded-md font-semibold bg-coffee-700 hover:bg-coffee-600 transition"
+            >
+              Open POS
+            </button>
+          </aside>
+
+          <section className="flex-1 p-6 overflow-y-auto bg-white">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+              <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-6">
+                <h2 className="text-2xl font-bold text-coffee-900 mb-4">
+                  Time Clock
+                </h2>
+
+                <p className="text-coffee-700 mb-3">
+                  Status:{" "}
+                  <span className="font-semibold">
+                    {isClockedIn ? "Clocked In" : "Clocked Out"}
+                  </span>
+                </p>
+
+                <button
+                  onClick={handleClockToggle}
+                  className={`w-full px-4 py-3 rounded-md font-semibold text-white transition ${
+                    isClockedIn
+                      ? "bg-red-500 hover:bg-red-600"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {isClockedIn ? "Clock Out" : "Clock In"}
+                </button>
+
+                <p className="text-sm text-coffee-600 mt-3">{lastClockAction}</p>
+              </div>
+
+              <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-6">
+                <h2 className="text-2xl font-bold text-coffee-900 mb-4">
+                  Quick Info
+                </h2>
+                <div className="space-y-3 text-coffee-800">
+                  <p>
+                    Logged in as:{" "}
+                    <span className="font-semibold">{user?.displayName}</span>
+                  </p>
+                  <p>
+                    Role: <span className="font-semibold">{user?.role}</span>
+                  </p>
+                  <p>
+                    Next step:{" "}
+                    <span className="font-semibold">
+                      {activeView === "schedule"
+                        ? "Review your upcoming shifts"
+                        : "Complete training items"}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {activeView === "schedule" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">Schedule</h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {mockSchedule.map((shift) => (
+                    <div
+                      key={shift.id}
+                      className="border border-coffee-200 rounded-lg p-4 bg-coffee-50"
+                    >
+                      <p className="font-semibold text-coffee-900">{shift.day}</p>
+                      <p className="text-coffee-700">{shift.shift}</p>
+                      <p className="text-sm text-coffee-600">{shift.location}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {activeView === "training" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">Training</h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {mockTraining.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border border-coffee-200 rounded-lg p-4 bg-coffee-50"
+                    >
+                      <p className="font-semibold text-coffee-900">{item.title}</p>
+                      <p className="text-sm text-coffee-600">
+                        Status: {item.status}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </section>
+        </motion.div>
+      </div>
+    </div>
   );
 }
 

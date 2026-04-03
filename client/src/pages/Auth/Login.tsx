@@ -59,7 +59,9 @@ function EmployeeLoginContainer({
         onChange={(e) => onPasswordChange(e.target.value)}
       />
 
-      {error && <p className="text-red-500 text-sm text-center w-full">{error}</p>}
+      {error ? (
+        <p className="text-red-500 text-sm text-center w-full">{error}</p>
+      ) : null}
 
       <Button
         label={loading ? "Logging in..." : "Login"}
@@ -104,7 +106,9 @@ function AgentLoginContainer({
         onChange={(e) => onPinChange(e.target.value)}
       />
 
-      {error && <p className="text-red-500 text-sm text-center w-full">{error}</p>}
+      {error ? (
+        <p className="text-red-500 text-sm text-center w-full">{error}</p>
+      ) : null}
 
       <Button
         label={loading ? "Logging in..." : "Login"}
@@ -119,7 +123,7 @@ function AgentLoginContainer({
 
 function LoginContainer() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, refreshUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -171,9 +175,7 @@ function LoginContainer() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
-          pin,
-        }),
+        body: JSON.stringify({ pin }),
       });
 
       const text = await response.text();
@@ -183,7 +185,8 @@ function LoginContainer() {
         throw new Error(data?.error || "PIN login failed.");
       }
 
-      navigate("/menu");
+      await refreshUser();
+      navigate("/pos");
     } catch (error: any) {
       console.error("PIN login failed:", error);
       setError(error.message || "PIN login failed.");

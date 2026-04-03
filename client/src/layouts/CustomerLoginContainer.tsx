@@ -1,91 +1,76 @@
 import React from "react";
 import { motion } from "motion/react";
-import Input from "../components/Input";
-import Button from "../components/Button";
-import { FaEnvelope, FaLock } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
-import Logo from "../assets/images/BrewEaseLogoTrans.png";
-import toast from "react-hot-toast";
+import BeanLeafHero from "../assets/images/LeafandBeanHero.png";
+import { LuShoppingBasket } from "react-icons/lu";
 
-interface CustomerLoginContainerProps {
-  email: string;
-  password: string;
-  onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onClose: () => void;
+interface CustomerInfoSectionProps {
+  onNext: () => void;
 }
 
-const CustomerLoginContainer = ({
-  email,
-  password,
-  onEmailChange,
-  onPasswordChange,
-  onClose,
-}: CustomerLoginContainerProps) => {
-  const handleLogin = () => {
-    // Implement your login logic here, e.g., call an API to authenticate the user
-
-    toast.success(
-      "Login button clicked with email: " +
-        email +
-        " and password: " +
-        password,
-    );
+function CustomerInfoSection({ onNext }: CustomerInfoSectionProps) {
+  const handleCustomerInfoSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    onNext();
   };
 
   return (
     <motion.div
+      className="flex flex-col w-full h-full bg-white items-start justify-start rounded-lg shadow-lg gap-6"
+      style={{
+        backgroundImage: `url(${BeanLeafHero})`,
+        backgroundSize: "auto 42%",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "top center",
+      }}
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, delay: 0.1 }}
-      className="flex flex-col gap-7 items-center justify-start h-full w-full bg-white p-8 rounded-lg shadow-lg"
+      transition={{ duration: 0.6, delay: 0.2 }}
     >
-      {/* Close Button */}
-      <div className="w-full flex justify-end mb-10">
-        <IoClose
-          className="text-2xl text-neutral-400 cursor-pointer"
-          onClick={onClose}
-        />
+      <div className="flex flex-1 flex-col p-6 w-full pt-6">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-lg font-bold uppercase tracking-[0.2em] text-coffee-600">
+            Customer Info
+          </h2>
+          <p className="text-md text-neutral-500 mb-4">
+            Look up a customer by name or order number.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-4 w-full max-w-xl">
+          <label className="flex flex-col gap-2 text-md font-semibold text-neutral-700">
+            Customer Name
+            <input
+              type="text"
+              placeholder="Enter customer name"
+              className="w-full rounded-lg border border-neutral-300 px-4 py-3 text-base font-medium text-neutral-800 outline-none transition-colors focus:border-coffee-700"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-md font-semibold text-neutral-700">
+            Order Number
+            <input
+              type="text"
+              placeholder="Enter order number"
+              className="w-full rounded-lg border border-neutral-300 px-4 py-3 text-base font-medium text-neutral-800 outline-none transition-colors focus:border-coffee-700"
+            />
+          </label>
+        </div>
+
+        <div className="flex w-full justify-end pt-6">
+          <button
+            type="button"
+            onClick={handleCustomerInfoSubmit}
+            className="rounded-full bg-coffee-700 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-coffee-900"
+          >
+            <div className="flex flex-row items-center gap-2">
+              Continue To Order
+              <LuShoppingBasket size={20} />
+            </div>
+          </button>
+        </div>
       </div>
-
-      <img src={Logo} alt="BrewEase Logo" className="w-20 h-20" />
-
-      <p className="text-lg text-center text-neutral-400">
-        Please enter your details to join your account
-      </p>
-      <Input
-        placeholder="Email"
-        type="email"
-        icon={<FaEnvelope />}
-        value={email}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          onEmailChange(e.target.value)
-        }
-      />
-      <Input
-        placeholder="Password"
-        type="password"
-        value={password}
-        icon={<FaLock />}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          onPasswordChange(e.target.value)
-        }
-      />
-      <Button
-        label="Login"
-        className="w-full justify-center items-center bg-coffee-700 text-white font-bold py-4 px-8 rounded-full"
-        variant="secondary"
-        size="large"
-        onClick={handleLogin}
-      />
-      <span className="text-sm text-neutral-400">
-        Don't have an account?{" "}
-        <a href="#" className="text-coffee-600 font-bold">
-          Sign Up
-        </a>
-      </span>
     </motion.div>
   );
-};
+}
 
-export default CustomerLoginContainer;
+export default CustomerInfoSection;
