@@ -15,7 +15,12 @@ function Dashboard() {
 
   const mockSchedule = [
     { id: 1, day: "Monday", shift: "9:00 AM - 2:00 PM", location: "Main Cafe" },
-    { id: 2, day: "Wednesday", shift: "11:00 AM - 5:00 PM", location: "Main Cafe" },
+    {
+      id: 2,
+      day: "Wednesday",
+      shift: "11:00 AM - 5:00 PM",
+      location: "Main Cafe",
+    },
     { id: 3, day: "Friday", shift: "8:00 AM - 1:00 PM", location: "Main Cafe" },
   ];
 
@@ -72,11 +77,13 @@ function Dashboard() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="flex w-full min-h-[650px] bg-white rounded-lg shadow-lg overflow-hidden"
         >
-          <aside className="w-[240px] shrink-0 bg-coffee-900 text-white p-4 flex flex-col gap-3">
+          {/* Side Menu */}
+          <aside className="w-1/4 shrink-0 bg-coffee-900 text-white p-4 flex flex-col gap-3">
             <h2 className="text-xl font-bold border-b border-coffee-700 pb-3">
               Employee Portal
             </h2>
 
+            {/*  */}
             <button
               onClick={() => setActiveView("schedule")}
               className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
@@ -132,7 +139,9 @@ function Dashboard() {
                   {isClockedIn ? "Clock Out" : "Clock In"}
                 </button>
 
-                <p className="text-sm text-coffee-600 mt-3">{lastClockAction}</p>
+                <p className="text-sm text-coffee-600 mt-3">
+                  {lastClockAction}
+                </p>
               </div>
 
               <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-6">
@@ -169,9 +178,13 @@ function Dashboard() {
                       key={shift.id}
                       className="border border-coffee-200 rounded-lg p-4 bg-coffee-50"
                     >
-                      <p className="font-semibold text-coffee-900">{shift.day}</p>
+                      <p className="font-semibold text-coffee-900">
+                        {shift.day}
+                      </p>
                       <p className="text-coffee-700">{shift.shift}</p>
-                      <p className="text-sm text-coffee-600">{shift.location}</p>
+                      <p className="text-sm text-coffee-600">
+                        {shift.location}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -188,7 +201,9 @@ function Dashboard() {
                       key={item.id}
                       className="border border-coffee-200 rounded-lg p-4 bg-coffee-50"
                     >
-                      <p className="font-semibold text-coffee-900">{item.title}</p>
+                      <p className="font-semibold text-coffee-900">
+                        {item.title}
+                      </p>
                       <p className="text-sm text-coffee-600">
                         Status: {item.status}
                       </p>

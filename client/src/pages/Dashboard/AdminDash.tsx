@@ -3,6 +3,10 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
 import UserInfoSection from "../../layouts/UserInfoSection.js";
+import DropDownList from "../../components/DropDownList.js";
+import { FaUserPlus } from "react-icons/fa";
+import { HiOutlineDocumentReport } from "react-icons/hi";
+import { BsFilePostFill } from "react-icons/bs";
 
 type AdminView = "create-user" | "reports";
 
@@ -20,6 +24,10 @@ function AdminDash() {
     }
   };
 
+  const handleCreateUser = () => {
+    console.log("Create User Clicked!");
+    // TODO: implement backend user creation
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
@@ -32,7 +40,7 @@ function AdminDash() {
 
   return (
     <div className="min-h-screen w-screen bg-coffee-300 p-8">
-      <div className="max-w-7xl mx-auto flex flex-col gap-4">
+      <div className="max-w-7xl mx-auto text-xl flex flex-col gap-4">
         <UserInfoSection
           displayName={user?.displayName ?? null}
           role={user?.role ?? null}
@@ -51,6 +59,7 @@ function AdminDash() {
               Admin Panel
             </h2>
 
+            {/* Create User Button */}
             <button
               onClick={() => setActiveView("create-user")}
               className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
@@ -59,9 +68,13 @@ function AdminDash() {
                   : "bg-coffee-800 hover:bg-coffee-700 text-white"
               }`}
             >
-              Create User
+              <div className="flex flex-row gap-2">
+                <FaUserPlus size={24} />
+                <p>Create User</p>
+              </div>
             </button>
 
+            {/* Create Reports Button */}
             <button
               onClick={() => setActiveView("reports")}
               className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
@@ -70,55 +83,63 @@ function AdminDash() {
                   : "bg-coffee-800 hover:bg-coffee-700 text-white"
               }`}
             >
-              Reports
+              <div className="flex flex-row gap-2">
+                <HiOutlineDocumentReport size={24} />
+                <p>Reports</p>
+              </div>
             </button>
 
             <button
               onClick={() => navigate("/pos")}
               className="mt-auto w-full text-left px-4 py-3 rounded-md font-semibold bg-coffee-700 hover:bg-coffee-600 transition"
             >
-              Open POS
+              <div className="flex flex-row gap-2">
+                <BsFilePostFill size={24} />
+                <p>Open POS</p>
+              </div>
             </button>
           </aside>
 
           <section className="flex-1 p-6 overflow-y-auto bg-white">
             {activeView === "create-user" ? (
               <div className="flex flex-col gap-4">
-                <h2 className="text-3xl font-bold text-coffee-900">Create User</h2>
+                <h2 className="text-3xl font-bold text-coffee-900">
+                  Create User
+                </h2>
                 <p className="text-coffee-700">
                   Add new employees and assign their role.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-8 justify-between">
                   <input
                     type="text"
                     placeholder="First Name"
-                    className="border border-coffee-300 rounded-md p-3"
+                    className="border border-gray-300 rounded-md p-3 py-4"
                   />
                   <input
                     type="text"
                     placeholder="Last Name"
-                    className="border border-coffee-300 rounded-md p-3"
+                    className="border border-gray-300 rounded-md p-3 py-4"
                   />
                   <input
                     type="email"
                     placeholder="Email"
-                    className="border border-coffee-300 rounded-md p-3"
+                    className="border border-gray-300 rounded-md p-3 py-4"
                   />
                   <input
                     type="password"
                     placeholder="Password"
-                    className="border border-coffee-300 rounded-md p-3"
+                    className="border border-gray-300 rounded-md p-3 py-4"
                   />
-                  <select className="border border-coffee-300 rounded-md p-3">
-                    <option value="barista">barista</option>
-                    <option value="manager">manager</option>
-                    <option value="admin">admin</option>
-                    <option value="kitchen">kitchen</option>
-                  </select>
+
+                  {/* TODO: check that these name are linked to the Firebase role naming system */}
+                  <DropDownList
+                    label="Employee Role"
+                    options={["Admin", "Kitchen", "Barista", "Manager"]}
+                  />
                 </div>
 
-                <button className="w-fit bg-coffee-800 hover:bg-coffee-900 text-white px-6 py-3 rounded-md font-semibold transition">
+                <button className="w-full bg-coffee-800 hover:bg-coffee-900 text-white px-6 py-5 rounded-md font-semibold transition  text-lg shadow-md">
                   Create Employee
                 </button>
               </div>

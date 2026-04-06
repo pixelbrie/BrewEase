@@ -14,7 +14,7 @@ type MenuItem = {
   id: string;
   name: string;
   price: number;
-  category: "coffee" | "tea" | "latte";
+  category: "coffee" | "tea";
 };
 
 type ModifierSelection = {
@@ -36,7 +36,7 @@ function PosDashboard() {
   const { user, logout, loading } = useAuth();
 
   const [selectedCategory, setSelectedCategory] = useState<
-    "all" | "coffee" | "tea" | "latte"
+    "all" | "coffee" | "tea"
   >("all");
 
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
@@ -46,8 +46,8 @@ function PosDashboard() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   const [menuItems] = useState<MenuItem[]>([
-    { id: "1", name: "Latte", price: 4.5, category: "latte" },
-    { id: "2", name: "Vanilla Latte", price: 5.0, category: "latte" },
+    { id: "1", name: "Latte", price: 4.5, category: "coffee" },
+    { id: "2", name: "Vanilla Latte", price: 5.0, category: "coffee" },
     { id: "3", name: "Cappuccino", price: 3.5, category: "coffee" },
     { id: "4", name: "Espresso", price: 2.75, category: "coffee" },
     { id: "5", name: "Matcha", price: 5.25, category: "tea" },
@@ -99,6 +99,10 @@ function PosDashboard() {
       ? menuItems
       : menuItems.filter((item) => item.category === selectedCategory);
 
+  const handleSelectCategory = (category: "all" | "coffee" | "tea") => {
+    setSelectedCategory(category);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
@@ -147,7 +151,7 @@ function PosDashboard() {
           >
             <FilterContainer
               selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
+              onSelectCategory={handleSelectCategory}
             />
           </motion.div>
         </div>
@@ -161,6 +165,7 @@ function PosDashboard() {
           >
             <div className="flex-1 min-h-0">
               <MenuGrid
+                filterKey={selectedCategory}
                 items={filteredMenuItems}
                 onAddToCart={handleAddToCart}
               />

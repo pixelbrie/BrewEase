@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import CreateEmployeeCard from "./CreateEmployeeCard.js";
 import CreateMenuItemCard from "./CreateMenuItemCard.js";
 
+// category of menu Item
 type MenuCategory = "coffee" | "tea" | "latte";
 
+// parameters to create a menu item
 interface AdminPanelProps {
   onCreateMenuItem: (item: {
     name: string;
@@ -12,6 +14,7 @@ interface AdminPanelProps {
   }) => void;
 }
 
+// Condition to create item menu
 type AdminView = "create-user" | "create-menu";
 
 function AdminPanel({ onCreateMenuItem }: AdminPanelProps) {
@@ -19,11 +22,13 @@ function AdminPanel({ onCreateMenuItem }: AdminPanelProps) {
 
   return (
     <div className="flex w-full h-full min-h-0 bg-white rounded-lg shadow-lg overflow-hidden">
+      {/* Side Menu */}
       <aside className="w-[220px] shrink-0 bg-coffee-900 text-white p-4 flex flex-col gap-3">
         <h2 className="text-lg font-bold border-b border-coffee-700 pb-3">
           Admin Tools
         </h2>
 
+        {/* Create User Button */}
         <button
           onClick={() => setActiveView("create-user")}
           className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
@@ -34,7 +39,7 @@ function AdminPanel({ onCreateMenuItem }: AdminPanelProps) {
         >
           Create User
         </button>
-
+        {/* Create Menu Item */}
         <button
           onClick={() => setActiveView("create-menu")}
           className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
