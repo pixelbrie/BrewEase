@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import customerRouter from "./routes/customerRoutes.js"
+import rewardRouter from "./routes/rewardRoutes.js"
 import session from "express-session";
 import authRoutes from "./routes/authRoutes.js";
 
@@ -45,6 +46,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/customers", customerRouter)
+app.use("/api/rewards", rewardRouter)
 app.use("/api/auth", authRoutes);
 
 export default app;
