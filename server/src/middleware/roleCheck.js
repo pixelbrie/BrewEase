@@ -16,7 +16,7 @@ const roleCheck = (requiredRole) => {
             const userRoleIndex = roleHierarchy.indexOf(userRole);
             const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
 
-            if (userRoleIndex < requiredRoleIndex) {
+            if (userRoleIndex > requiredRoleIndex) {
                 return res.status(403).json({ error: 'Insufficient permissions' });
             }
 
@@ -30,15 +30,22 @@ const roleCheck = (requiredRole) => {
 // Middleware to fetch user role from Firestore
 const attachUserRole = async (req, res, next) => {
     try {
-        const userDoc = await db.collection('users').doc(req.user.uid).get();
+        const uid = req.user?.uid || req.session?.userId;
+
+        if (!uid) {
+            return res.status(401).json({ error: 'Not authenticated' });
+        }
+
+        const userDoc = await db.collection('users').doc(uid).get();
 
         if (!userDoc.exists) {
             return res.status(404).json({ error: 'User not found' });
         }
 
         const userData = userDoc.data();
+        if (!req.user) req.user = {};
+        req.user.uid = uid;
         req.user.role = userData.role;
-        req.user.tenantId = userData.tenantId;
 
         next();
     } catch (error) {

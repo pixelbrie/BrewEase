@@ -11,7 +11,7 @@ import {
 
 const createCustomer = async (req, res) => {
   try {
-    const { firstName, lastName, email, phone } = req.body;
+    const { firstName, lastName, phone } = req.body;
 
     if (!firstName) {
       return res.status(400).json({ error: "firstName is required" });
@@ -20,7 +20,6 @@ const createCustomer = async (req, res) => {
     const customer = await createCustomerService({
       firstName,
       lastName,
-      email,
       phone,
     });
 
@@ -50,7 +49,7 @@ const getCustomerById = async (req, res) => {
 };
 
 // ========================
-// Phone / Email Lookup
+// Phone Lookup
 // ========================
 
 const lookupCustomer = async (req, res) => {

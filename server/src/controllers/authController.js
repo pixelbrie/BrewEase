@@ -32,24 +32,34 @@ async function generateUniquePin() {
 
 /**
  * Generate unique ID from firstName, lastName, and dateOfBirth
- * Format: FirstName_LastName_YYYYMMDD_randomSuffix
+ * Format: first letter of firstName + first 4 letters of lastName + 3 random digits from DOB
+ * Example: "jonah smith" + "1994-11-23" => "jsmit913"
  * @param {string} firstName - User's first name
  * @param {string} lastName - User's last name
  * @param {string} dateOfBirth - User's date of birth (YYYY-MM-DD)
  * @returns {Promise<string>} - Unique user ID
  */
 async function generateUniqueUserId(firstName, lastName, dateOfBirth) {
-  const sanitizedFirst = firstName.toLowerCase().replace(/\s+/g, "");
-  const sanitizedLast = lastName.toLowerCase().replace(/\s+/g, "");
-  const dobFormatted = dateOfBirth.replace(/-/g, "");
+  const firstChar = firstName.toLowerCase().replace(/\s+/g, "").charAt(0);
+  const lastFour = lastName.toLowerCase().replace(/\s+/g, "").substring(0, 4);
+  const dobDigits = dateOfBirth.replace(/-/g, ""); // e.g. "19941123"
+
+  // Pick 3 random digits from the DOB string
+  function pickRandomDigits(digits, count) {
+    let picked = "";
+    for (let i = 0; i < count; i++) {
+      const idx = Math.floor(Math.random() * digits.length);
+      picked += digits[idx];
+    }
+    return picked;
+  }
 
   let isUnique = false;
-  let suffix = 0;
   let userId = "";
 
   while (!isUnique) {
-    const randomSuffix = suffix === 0 ? "" : `_${suffix}`;
-    userId = `${sanitizedFirst}_${sanitizedLast}_${dobFormatted}${randomSuffix}`;
+    const threeDigits = pickRandomDigits(dobDigits, 3);
+    userId = `${firstChar}${lastFour}${threeDigits}`;
 
     const snapshot = await db
       .collection("users")
@@ -59,8 +69,6 @@ async function generateUniqueUserId(firstName, lastName, dateOfBirth) {
 
     if (snapshot.empty) {
       isUnique = true;
-    } else {
-      suffix++;
     }
   }
 
@@ -122,6 +130,19 @@ export const signup = async (req, res) => {
     if (!resolvedDisplayName) {
       return res.status(400).json({
         error: "Display name is required, or provide firstName and lastName",
+      });
+    }
+
+    // Check displayName uniqueness
+    const displayNameSnapshot = await db
+      .collection("users")
+      .where("displayName", "==", resolvedDisplayName)
+      .limit(1)
+      .get();
+
+    if (!displayNameSnapshot.empty) {
+      return res.status(409).json({
+        error: "Display name is already taken. Please choose a different one.",
       });
     }
 

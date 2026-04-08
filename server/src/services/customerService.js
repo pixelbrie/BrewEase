@@ -8,16 +8,9 @@ const orderCollection = db.collection("orders")
 // Customer Profile Creation
 // ========================
 
-const createCustomer = async ({ firstName, lastName, email, phone }) => {
+const createCustomer = async ({ firstName, lastName, phone }) => {
   if (!firstName) {
     throw new Error("firstName is required");
-  }
-
-  if (email) {
-    const emailExists = await getCustomerByEmail(email);
-    if (emailExists) {
-      throw new Error("A customer with this email already exists");
-    }
   }
 
   if (phone) {
@@ -30,7 +23,6 @@ const createCustomer = async ({ firstName, lastName, email, phone }) => {
   const customerData = {
     firstName,
     lastName: lastName || "",
-    email: email || "",
     phone: phone || "",
     loyaltyPoints: 0,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -52,20 +44,9 @@ const getCustomerById = async (customerId) => {
 };
 
 // ========================
-// Phone / Email Lookup
+// Phone Lookup
 // ========================
 
-const getCustomerByEmail = async (email) => {
-  const snapshot = await customerCollection
-    .where("email", "==", email)
-    .limit(1)
-    .get();
-
-  if (snapshot.empty) return null;
-
-  const doc = snapshot.docs[0];
-  return { customerId: doc.id, ...doc.data() };
-};
 
 const getCustomerByPhone = async (phone) => {
   const snapshot = await customerCollection
@@ -80,8 +61,6 @@ const getCustomerByPhone = async (phone) => {
 };
 
 const lookupCustomer = async (query) => {
-  const byEmail = await getCustomerByEmail(query);
-  if (byEmail) return byEmail;
 
   const byPhone = await getCustomerByPhone(query);
   if (byPhone) return byPhone;
@@ -180,7 +159,6 @@ const updateLastVisit = async (customerId) => {
 export {
   createCustomer,
   getCustomerById,
-  getCustomerByEmail,
   getCustomerByPhone,
   lookupCustomer,
   attachCustomerToOrder,
