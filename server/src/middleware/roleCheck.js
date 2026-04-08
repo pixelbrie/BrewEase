@@ -1,6 +1,6 @@
 // server/src/middleware/roleCheck.js
-const admin = require('../config/firebaseAdmin');
-const { ROUTE_PROTECTION, ROLE_PERMISSIONS } = require('../config/roles');
+import { db } from '../config/firebaseAdmin.js';
+import { ROUTE_PROTECTION, ROLE_PERMISSIONS } from '../config/roles.js';
 
 const roleCheck = (requiredRole) => {
     return async (req, res, next) => {
@@ -30,7 +30,6 @@ const roleCheck = (requiredRole) => {
 // Middleware to fetch user role from Firestore
 const attachUserRole = async (req, res, next) => {
     try {
-        const db = admin.firestore();
         const userDoc = await db.collection('users').doc(req.user.uid).get();
 
         if (!userDoc.exists) {
@@ -47,4 +46,4 @@ const attachUserRole = async (req, res, next) => {
     }
 };
 
-module.exports = { roleCheck, attachUserRole };
+export { roleCheck, attachUserRole };

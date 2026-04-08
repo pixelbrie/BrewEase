@@ -50,7 +50,7 @@ const ROUTE_PROTECTION = {
   '/menu': ROLES.BARISTA
 };
 
-module.exports = {
+export {
   ROLES,
   ROLE_PERMISSIONS,
   ROUTE_PROTECTION

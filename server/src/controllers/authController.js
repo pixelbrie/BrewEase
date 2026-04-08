@@ -1,7 +1,9 @@
 import { auth, db } from "../config/firebaseAdmin.js";
 import { FieldValue } from "firebase-admin/firestore";
+import bcrypt from "bcrypt";
 
 const validRoles = ["admin", "manager", "barista", "kitchen"];
+const BCRYPT_ROUNDS = 10; // Salt rounds for bcrypt
 
 function generateFourDigitPin() {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -28,24 +30,90 @@ async function generateUniquePin() {
   return pin;
 }
 
+/**
+ * Generate unique ID from firstName, lastName, and dateOfBirth
+ * Format: FirstName_LastName_YYYYMMDD_randomSuffix
+ * @param {string} firstName - User's first name
+ * @param {string} lastName - User's last name
+ * @param {string} dateOfBirth - User's date of birth (YYYY-MM-DD)
+ * @returns {Promise<string>} - Unique user ID
+ */
+async function generateUniqueUserId(firstName, lastName, dateOfBirth) {
+  const sanitizedFirst = firstName.toLowerCase().replace(/\s+/g, "");
+  const sanitizedLast = lastName.toLowerCase().replace(/\s+/g, "");
+  const dobFormatted = dateOfBirth.replace(/-/g, "");
+
+  let isUnique = false;
+  let suffix = 0;
+  let userId = "";
+
+  while (!isUnique) {
+    const randomSuffix = suffix === 0 ? "" : `_${suffix}`;
+    userId = `${sanitizedFirst}_${sanitizedLast}_${dobFormatted}${randomSuffix}`;
+
+    const snapshot = await db
+      .collection("users")
+      .where("userId", "==", userId)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      isUnique = true;
+    } else {
+      suffix++;
+    }
+  }
+
+  return userId;
+}
+
+/**
+ * Hash password using bcrypt with salt
+ * @param {string} password - Plain text password
+ * @returns {Promise<string>} - Hashed password
+ */
+async function hashPassword(password) {
+  return bcrypt.hash(password, BCRYPT_ROUNDS);
+}
+
+/**
+ * Compare password with hash
+ * @param {string} password - Plain text password
+ * @param {string} hash - Hashed password
+ * @returns {Promise<boolean>} - True if password matches hash
+ */
+async function verifyPassword(password, hash) {
+  return bcrypt.compare(password, hash);
+}
+
 // POST /api/auth/signup
 export const signup = async (req, res) => {
   try {
     const {
-      email,
       password,
       displayName,
       role,
       firstName,
       lastName,
+      dateOfBirth,
     } = req.body;
 
-    if (!email || !password || !role) {
-      return res.status(400).json({ error: "Missing required fields" });
+    // Validate required fields
+    if (!password || !role || !firstName || !lastName || !dateOfBirth) {
+      return res.status(400).json({
+        error: "Missing required fields. Required: password, role, firstName, lastName, dateOfBirth",
+      });
     }
 
     if (!validRoles.includes(role)) {
       return res.status(400).json({ error: "Invalid role" });
+    }
+
+    // Validate dateOfBirth format (YYYY-MM-DD)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth)) {
+      return res.status(400).json({
+        error: "Invalid dateOfBirth format. Use YYYY-MM-DD",
+      });
     }
 
     const resolvedDisplayName =
@@ -57,22 +125,34 @@ export const signup = async (req, res) => {
       });
     }
 
+    // Generate unique user ID from firstName, lastName, and dateOfBirth
+    const generatedUserId = await generateUniqueUserId(
+      firstName,
+      lastName,
+      dateOfBirth,
+    );
+
+    // Generate unique PIN
     const generatedPin = await generateUniquePin();
 
+    // Hash password with bcrypt (salt only, no pepper)
+    const hashedPassword = await hashPassword(password);
+
+    // Create Firebase Auth user (no email)
     const userRecord = await auth.createUser({
-      email,
-      password,
       displayName: resolvedDisplayName,
     });
-
     const uid = userRecord.uid;
 
+    // Store user document in Firestore with generated userId
     await db.collection("users").doc(uid).set({
       uid,
-      email,
+      userId: generatedUserId,
+      passwordHash: hashedPassword,
       displayName: resolvedDisplayName,
-      firstName: firstName || null,
-      lastName: lastName || null,
+      firstName,
+      lastName,
+      dateOfBirth,
       role,
       pin: generatedPin,
       createdAt: FieldValue.serverTimestamp(),
@@ -81,10 +161,11 @@ export const signup = async (req, res) => {
 
     return res.status(201).json({
       uid,
-      email,
+      userId: generatedUserId,
       displayName: resolvedDisplayName,
-      firstName: firstName || null,
-      lastName: lastName || null,
+      firstName,
+      lastName,
+      dateOfBirth,
       role,
       pin: generatedPin,
       message: "User created successfully",
@@ -92,9 +173,6 @@ export const signup = async (req, res) => {
   } catch (error) {
     console.error("Signup error:", error.message);
 
-    if (error.code === "auth/email-already-exists") {
-      return res.status(409).json({ error: "Email already in use" });
-    }
 
     return res.status(500).json({
       error: "Signup failed",
@@ -106,29 +184,39 @@ export const signup = async (req, res) => {
 // POST /api/auth/login
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { userId, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+    if (!userId || !password) {
+      return res.status(400).json({ error: "userId and password are required" });
     }
 
-    const userRecord = await auth.getUserByEmail(email).catch(() => null);
+    // Look up user by generated userId
+    const snapshot = await db
+      .collection("users")
+      .where("userId", "==", userId)
+      .limit(1)
+      .get();
 
-    if (!userRecord) {
+    if (snapshot.empty) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const userDoc = await db.collection("users").doc(userRecord.uid).get();
+    const userDoc = snapshot.docs[0];
+    const userData = userDoc.data();
 
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: "User not found" });
+    // Verify password against stored hash
+    const passwordMatch = await verifyPassword(password, userData.passwordHash);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Invalid password" });
     }
 
-    req.session.userId = userRecord.uid;
+    req.session.userId = userData.uid;
 
     return res.status(200).json({
       message: "Login successful",
-      uid: userRecord.uid,
+      uid: userData.uid,
+      userId: userData.userId,
     });
   } catch (error) {
     console.error("Login error:", error.message);
@@ -232,10 +320,11 @@ export const getCurrentUser = async (req, res) => {
 
     return res.status(200).json({
       uid: userData.uid,
-      email: userData.email,
+      userId: userData.userId,
       displayName: userData.displayName,
       firstName: userData.firstName ?? null,
       lastName: userData.lastName ?? null,
+      dateOfBirth: userData.dateOfBirth ?? null,
       role: userData.role,
       pin: userData.pin,
       createdAt: userData.createdAt ?? null,
@@ -279,10 +368,11 @@ export const getAllUsers = async (req, res) => {
 
       return {
         uid: data.uid,
-        email: data.email,
+        userId: data.userId,
         displayName: data.displayName,
         firstName: data.firstName ?? null,
         lastName: data.lastName ?? null,
+        dateOfBirth: data.dateOfBirth ?? null,
         role: data.role,
         pin: data.pin,
       };
