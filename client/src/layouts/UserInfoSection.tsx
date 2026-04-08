@@ -1,12 +1,13 @@
 import React from "react";
 import { motion } from "motion/react";
-import { LuLogOut } from "react-icons/lu";
+import { LuArrowLeft, LuLogOut } from "react-icons/lu";
 
 interface UserInfoSectionProps {
   displayName?: string | null;
   role?: string | null;
   tenantId?: string | null;
   onLogout: () => void;
+  onBackToAdmin?: () => void;
 }
 
 function UserInfoSection({
@@ -14,6 +15,7 @@ function UserInfoSection({
   role,
   tenantId,
   onLogout,
+  onBackToAdmin,
 }: UserInfoSectionProps) {
   return (
     <motion.div
@@ -28,13 +30,27 @@ function UserInfoSection({
           <h1 className="text-3xl font-bold text-coffee-900">
             👋 Welcome! {displayName || "User"}
           </h1>
-          {/* Logout Button */}
-          <button
-            onClick={onLogout}
-            className="bg-red-800 hover:bg-red-600 text-white font-bold py-3 px-3 rounded-full"
-          >
-            <LuLogOut size={20} />
-          </button>
+          <div className="flex items-center gap-3">
+            {onBackToAdmin ? (
+              <button
+                type="button"
+                onClick={onBackToAdmin}
+                className="flex items-center gap-2 rounded-full bg-coffee-800 px-4 py-3 font-bold text-white transition hover:bg-coffee-900"
+              >
+                <LuArrowLeft size={18} />
+                <span>Admin</span>
+              </button>
+            ) : null}
+
+            {/* Logout Button */}
+            <button
+              type="button"
+              onClick={onLogout}
+              className="rounded-full bg-red-800 px-3 py-3 font-bold text-white transition hover:bg-red-600"
+            >
+              <LuLogOut size={20} />
+            </button>
+          </div>
         </div>
         {/* User Info */}
         <p className="text-neutral-600 font-bold">

@@ -27,7 +27,7 @@ function OrderReadySplash({ onClose }: OrderReadySplashProps) {
         </div>
         <h2 className="text-4xl font-bold text-coffee-900">Order Ready</h2>
         <p className="mt-4 max-w-lg text-lg text-neutral-600">
-          Payment was successful. The order has been sent to the barista queue.
+          Payment was successful. The order has been sent to the order queue.
         </p>
         <button
           type="button"

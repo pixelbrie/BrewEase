@@ -8,6 +8,7 @@ type MenuItem = {
   price: number;
   category: "coffee" | "tea";
 };
+
 // list of modifiers
 type ModifierSelection = {
   size: "small" | "medium" | "large";
