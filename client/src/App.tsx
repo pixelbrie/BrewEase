@@ -8,7 +8,6 @@ import MenuPage from "./pages/Menu/MenuPage.js";
 import { Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
-import TestPage from "./pages/TestPage.js";
 
 function RoleBasedDashboard() {
   const { user } = useAuth();
@@ -53,8 +52,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route path="/testPage" element={<TestPage />} />
       </Routes>
     </AuthProvider>
   );

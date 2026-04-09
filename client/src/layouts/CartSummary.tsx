@@ -20,10 +20,19 @@ interface CartSummaryProps {
   customer: Customer | null;
   orderNumber: string;
   items: CartItem[];
+  onCheckout: () => void;
 }
 
-function CartSummary({ customer, orderNumber, items }: CartSummaryProps) {
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+function CartSummary({
+  customer,
+  orderNumber,
+  items,
+  onCheckout,
+}: CartSummaryProps) {
+  const subtotal = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
 
   return (
     <motion.div
@@ -33,7 +42,7 @@ function CartSummary({ customer, orderNumber, items }: CartSummaryProps) {
       transition={{ duration: 0.5 }}
     >
       <div className="flex flex-col gap-2">
-        <h2 className="text-xl font-bold text-coffee-900">Order Summary</h2>
+        <h2 className="text-xl font-bold text-coffee-900">Cart Summary</h2>
         <p className="text-sm text-coffee-600">Order #: {orderNumber}</p>
         <p className="text-sm text-coffee-700">
           Customer:{" "}
@@ -53,22 +62,28 @@ function CartSummary({ customer, orderNumber, items }: CartSummaryProps) {
       </div>
 
       <div className="flex flex-col gap-3">
+        {/* when it is empty */}
         {items.length === 0 ? (
           <div className="rounded-lg border border-dashed border-coffee-300 p-4 text-sm text-coffee-600">
             No items in cart yet.
           </div>
         ) : (
+          // when it has more than 1 item
           items.map((item) => (
             <div
               key={item.id}
-              className="rounded-lg border border-coffee-200 bg-coffee-50 p-4"
+              // this is the main card container
+              className="rounded-lg border border-coffee-200 bg-coffee-50 p-4 shadow-md"
             >
+              {/* item info constainer */}
               <div className="flex flex-row justify-between items-start gap-3">
                 <div>
+                  {/* title of the item */}
                   <p className="font-semibold text-coffee-900">
                     {item.name} x{item.quantity}
                   </p>
 
+                  {/* modifiers listings */}
                   {item.modifiers ? (
                     <div className="mt-2 text-sm text-coffee-700 space-y-1">
                       <p>Size: {item.modifiers.size}</p>
@@ -97,8 +112,13 @@ function CartSummary({ customer, orderNumber, items }: CartSummaryProps) {
           </span>
         </div>
 
-        <button className="w-full bg-coffee-800 hover:bg-coffee-900 text-white px-4 py-3 rounded-md font-semibold transition">
-          Place Order
+        <button
+          type="button"
+          onClick={onCheckout}
+          disabled={items.length === 0}
+          className="w-full rounded-md bg-coffee-800 px-4 py-3 font-semibold text-white transition hover:bg-coffee-900 disabled:cursor-not-allowed disabled:bg-coffee-300 disabled:text-coffee-600"
+        >
+          Checkout
         </button>
       </div>
     </motion.div>

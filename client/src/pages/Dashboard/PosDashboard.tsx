@@ -5,8 +5,9 @@ import CustomerLookupCard, {
   type Customer,
 } from "../../layouts/CustomerLookupCard.js";
 import CartSummary, { type CartItem } from "../../layouts/CartSummary.js";
+import OrderReadySplash from "../../layouts/OrderReadySplash.js";
 import MenuGrid from "../../pos/MenuGrid.js";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
 
@@ -14,7 +15,7 @@ type MenuItem = {
   id: string;
   name: string;
   price: number;
-  category: "coffee" | "tea" | "latte";
+  category: "coffee" | "tea";
 };
 
 type ModifierSelection = {
@@ -34,20 +35,23 @@ function generateDailyOrderNumber() {
 function PosDashboard() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
+  const canReturnToAdmin =
+    user?.role === "admin" || user?.role === "manager";
 
   const [selectedCategory, setSelectedCategory] = useState<
-    "all" | "coffee" | "tea" | "latte"
+    "all" | "coffee" | "tea"
   >("all");
 
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null,
   );
-  const [orderNumber] = useState(generateDailyOrderNumber());
+  const [orderNumber, setOrderNumber] = useState(generateDailyOrderNumber());
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isOrderReadyOpen, setIsOrderReadyOpen] = useState(false);
 
   const [menuItems] = useState<MenuItem[]>([
-    { id: "1", name: "Latte", price: 4.5, category: "latte" },
-    { id: "2", name: "Vanilla Latte", price: 5.0, category: "latte" },
+    { id: "1", name: "Latte", price: 4.5, category: "coffee" },
+    { id: "2", name: "Vanilla Latte", price: 5.0, category: "coffee" },
     { id: "3", name: "Cappuccino", price: 3.5, category: "coffee" },
     { id: "4", name: "Espresso", price: 2.75, category: "coffee" },
     { id: "5", name: "Matcha", price: 5.25, category: "tea" },
@@ -99,6 +103,20 @@ function PosDashboard() {
       ? menuItems
       : menuItems.filter((item) => item.category === selectedCategory);
 
+  const handleSelectCategory = (category: "all" | "coffee" | "tea") => {
+    setSelectedCategory(category);
+  };
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      return;
+    }
+
+    setCartItems([]);
+    setOrderNumber(generateDailyOrderNumber());
+    setIsOrderReadyOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
@@ -108,67 +126,80 @@ function PosDashboard() {
   }
 
   return (
-    <div className="flex flex-row items-start h-screen w-screen gap-2 p-8 bg-coffee-300">
-      <div className="flex flex-col w-3/4 h-full gap-2 min-h-0">
-        <div className="w-full shrink-0">
-          <UserInfoSection
-            displayName={user?.displayName ?? null}
-            role={user?.role ?? null}
-            tenantId={null}
-            onLogout={handleLogout}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-2 flex-1 min-h-0">
-          <div className="min-h-0 overflow-y-auto">
-            <CustomerLookupCard
-              selectedCustomer={selectedCustomer}
-              onCustomerSelect={setSelectedCustomer}
+    <>
+      <div className="flex flex-row items-start h-screen w-screen gap-2 p-8 bg-coffee-300">
+        <div className="flex flex-col w-3/4 h-full gap-2 min-h-0">
+          <div className="w-full shrink-0">
+            <UserInfoSection
+              displayName={user?.displayName ?? null}
+              role={user?.role ?? null}
+              tenantId={null}
+              onLogout={handleLogout}
+              {...(canReturnToAdmin
+                ? { onBackToAdmin: () => navigate("/dashboard") }
+                : {})}
             />
           </div>
 
-          <div className="min-h-0">
-            <CartSummary
-              customer={selectedCustomer}
-              orderNumber={orderNumber}
-              items={cartItems}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col w-full h-full gap-2 min-h-0">
-        <div className="flex w-full shrink-0 min-h-[110px]">
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex w-full h-full"
-          >
-            <FilterContainer
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-            />
-          </motion.div>
-        </div>
-
-        <div className="flex-1 min-h-0">
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-6 overflow-y-auto gap-4"
-          >
-            <div className="flex-1 min-h-0">
-              <MenuGrid
-                items={filteredMenuItems}
-                onAddToCart={handleAddToCart}
+          <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-2 flex-1 min-h-0">
+            <div className="min-h-0 overflow-y-auto">
+              <CustomerLookupCard
+                selectedCustomer={selectedCustomer}
+                onCustomerSelect={setSelectedCustomer}
               />
             </div>
-          </motion.div>
+
+            <div className="min-h-0">
+              <CartSummary
+                customer={selectedCustomer}
+                orderNumber={orderNumber}
+                items={cartItems}
+                onCheckout={handleCheckout}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col w-full h-full gap-2 min-h-0">
+          <div className="flex w-full shrink-0 min-h-[110px]">
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="flex w-full h-full"
+            >
+              <FilterContainer
+                selectedCategory={selectedCategory}
+                onSelectCategory={handleSelectCategory}
+              />
+            </motion.div>
+          </div>
+
+          <div className="flex-1 min-h-0">
+            <motion.div
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-6 overflow-y-auto gap-4"
+            >
+              <div className="flex-1 min-h-0">
+                <MenuGrid
+                  filterKey={selectedCategory}
+                  items={filteredMenuItems}
+                  onAddToCart={handleAddToCart}
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <AnimatePresence>
+        {isOrderReadyOpen ? (
+          <OrderReadySplash onClose={() => setIsOrderReadyOpen(false)} />
+        ) : null}
+      </AnimatePresence>
+    </>
   );
 }
 

@@ -1,70 +1,97 @@
 import React from "react";
 import { motion } from "motion/react";
+import coffeeFilterBackground from "../assets/images/bg-filterButton-coffee.png";
+import teaFilterBackground from "../assets/images/bg-filterButton-matcha.png";
 
-type FilterCategory = "all" | "coffee" | "tea" | "latte";
+type FilterCategory = "all" | "coffee" | "tea";
 
 interface FilterContainerProps {
   selectedCategory: FilterCategory;
   onSelectCategory: (category: FilterCategory) => void;
 }
 
+const filterButtons: Array<{
+  category: FilterCategory;
+  label: string;
+  backgroundImage?: string;
+}> = [
+  { category: "all", label: "All" },
+  {
+    category: "tea",
+    label: "Tea",
+    backgroundImage: teaFilterBackground,
+  },
+  {
+    category: "coffee",
+    label: "Coffees",
+    backgroundImage: coffeeFilterBackground,
+  },
+];
+
 function FilterContainer({
   selectedCategory,
   onSelectCategory,
 }: FilterContainerProps) {
-  const baseButtonClass =
-    "px-4 py-3 rounded-lg font-semibold transition border text-sm md:text-base";
-
   return (
     <motion.div
       initial={{ y: 30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      className="flex flex-row flex-wrap justify-center items-center h-full w-full gap-2 bg-white rounded-lg shadow-lg p-4"
+      className="grid h-full w-full grid-cols-1 gap-2 rounded-lg bg-white p-4 shadow-lg md:grid-cols-3"
     >
-      <button
-        onClick={() => onSelectCategory("all")}
-        className={`${baseButtonClass} ${
-          selectedCategory === "all"
-            ? "bg-coffee-800 text-white border-coffee-800"
-            : "bg-coffee-50 text-coffee-800 border-coffee-200"
-        }`}
-      >
-        All
-      </button>
+      {filterButtons.map(({ category, label, backgroundImage }) => {
+        const isSelected = selectedCategory === category;
 
-      <button
-        onClick={() => onSelectCategory("coffee")}
-        className={`${baseButtonClass} ${
-          selectedCategory === "coffee"
-            ? "bg-coffee-800 text-white border-coffee-800"
-            : "bg-coffee-50 text-coffee-800 border-coffee-200"
-        }`}
-      >
-        Coffee
-      </button>
+        return (
+          <motion.button
+            key={category}
+            type="button"
+            onClick={() => onSelectCategory(category)}
+            whileTap={{ scale: 0.98 }}
+            animate={{}}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
+            className={`relative min-h-[96px] overflow-hidden rounded-2xl border text-left transition duration-200 ${
+              isSelected
+                ? "border-coffee-700 ring-2 ring-coffee-700"
+                : "border-coffee-200 hover:border-coffee-400"
+            } ${backgroundImage ? "text-white" : "bg-coffee-50 text-coffee-900"}`}
+          >
+            {backgroundImage ? (
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-0"
+                style={{
+                  backgroundImage: `url(${backgroundImage})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+                animate={{
+                  y: isSelected ? -8 : 8,
+                  scale: isSelected ? 1.2 : 1.14,
+                }}
+                transition={{ duration: 0.55, ease: "easeInOut" }}
+              />
+            ) : null}
 
-      <button
-        onClick={() => onSelectCategory("tea")}
-        className={`${baseButtonClass} ${
-          selectedCategory === "tea"
-            ? "bg-coffee-800 text-white border-coffee-800"
-            : "bg-coffee-50 text-coffee-800 border-coffee-200"
-        }`}
-      >
-        Tea
-      </button>
+            <motion.div
+              aria-hidden="true"
+              className={`absolute inset-0 ${
+                backgroundImage
+                  ? isSelected
+                    ? "bg-black/25"
+                    : "bg-black/35"
+                  : "bg-transparent"
+              }`}
+              animate={{}}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
+            />
 
-      <button
-        onClick={() => onSelectCategory("latte")}
-        className={`${baseButtonClass} ${
-          selectedCategory === "latte"
-            ? "bg-coffee-800 text-white border-coffee-800"
-            : "bg-coffee-50 text-coffee-800 border-coffee-200"
-        }`}
-      >
-        Lattes
-      </button>
+            <div className="relative flex h-full items-end p-5">
+              <span className="text-2xl font-bold">{label}</span>
+            </div>
+          </motion.button>
+        );
+      })}
     </motion.div>
   );
 }
