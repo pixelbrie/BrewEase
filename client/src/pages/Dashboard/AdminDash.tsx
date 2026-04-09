@@ -8,6 +8,8 @@ import { FaUserPlus } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { BsFilePostFill } from "react-icons/bs";
 
+import CreateEmployeeCard from "./CreateEmployeeCard.js";
+
 type AdminView = "create-user" | "reports";
 
 function AdminDash() {
