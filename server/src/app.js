@@ -1,19 +1,12 @@
-<<<<<<< HEAD
 import express from "express";
 import cors from "cors";
 import customerRouter from "./routes/customerRoutes.js";
 import session from "express-session";
 import authRoutes from "./routes/authRoutes.js";
 import orderRouter from "./routes/orderRoute.js";
+import menuRoutes from "./routes/menuRoutes.js"; 
 
 const app = express();
-=======
-import express from "express"
-import cors from "cors"
-import testFirestoreRouter from "./routes/testFirestore.js"
-import menuRoutes from "./routes/menuRoutes.js"; 
-const app = express()
->>>>>>> MichaelCode
 
 const allowedOrigins = new Set([
   "http://localhost:5173",
@@ -53,17 +46,11 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-<<<<<<< HEAD
   res.json({ message: "BrewEase API running" });
 });
-=======
-  res.json({ message: "BrewEase API running" })
-})
-app.use("/", menuRoutes);
->>>>>>> MichaelCode
 
 app.use("/api/customers", customerRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRouter);
-
+app.use("/", menuRoutes);
 export default app;
