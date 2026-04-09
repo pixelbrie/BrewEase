@@ -2,26 +2,20 @@ import { useState } from "react";
 
 type MenuCategory = "coffee" | "tea";
 
-interface CreateMenuItemCardProps {
-  onCreateMenuItem?: (item: {
-    name: string;
-    price: number;
-    category: MenuCategory;
-  }) => void;
-}
-
-function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
+function CreateMenuItemCard() {
   const [form, setForm] = useState({
-    name: "",
-    price: "",
-    category: "coffee" as MenuCategory,
+    itemName: "",
+    basePrice: "",
+    categoryId: "coffee" as MenuCategory,
+    description: "",
   });
 
   const [createdMessage, setCreatedMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     setForm((prev) => ({
       ...prev,
@@ -34,33 +28,56 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
     setCreatedMessage("");
     setError("");
 
-    const parsedPrice = Number(form.price);
+    const parsedPrice = Number(form.basePrice);
 
-    if (!form.name.trim() || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
+    if (!form.itemName.trim() || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
       setError("Please enter a valid item name and price.");
       return;
     }
 
-    const newItem = {
-      name: form.name.trim(),
-      price: parsedPrice,
-      category: form.category,
+    const payload = {
+      itemName: form.itemName.trim(),
+      basePrice: parsedPrice,
+      categoryId: form.categoryId,
+      description: form.description.trim() || null,
+      previewImage: null,
+      sizes: ["small", "medium", "large"],
+      flavors: [],
+      available: true,
+      taxable: true,
     };
 
     try {
-      if (onCreateMenuItem) {
-        onCreateMenuItem(newItem);
+      setLoading(true);
+
+      const response = await fetch("http://localhost:8080/api/menu", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to create menu item.");
       }
 
-      setCreatedMessage(`${newItem.name} added to menu`);
+      setCreatedMessage(`${payload.itemName} added to menu`);
 
       setForm({
-        name: "",
-        price: "",
-        category: "coffee",
+        itemName: "",
+        basePrice: "",
+        categoryId: "coffee",
+        description: "",
       });
     } catch (err: any) {
       setError(err.message || "Failed to create menu item.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,8 +89,8 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
 
       <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3">
         <input
-          name="name"
-          value={form.name}
+          name="itemName"
+          value={form.itemName}
           onChange={handleChange}
           placeholder="Item name"
           className="border border-coffee-300 rounded-md p-3"
@@ -81,11 +98,11 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
         />
 
         <input
-          name="price"
+          name="basePrice"
           type="number"
           step="0.01"
           min="0"
-          value={form.price}
+          value={form.basePrice}
           onChange={handleChange}
           placeholder="Price"
           className="border border-coffee-300 rounded-md p-3"
@@ -93,8 +110,8 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
         />
 
         <select
-          name="category"
-          value={form.category}
+          name="categoryId"
+          value={form.categoryId}
           onChange={handleChange}
           className="border border-coffee-300 rounded-md p-3"
         >
@@ -102,11 +119,20 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
           <option value="tea">tea</option>
         </select>
 
+        <textarea
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Description"
+          className="border border-coffee-300 rounded-md p-3 min-h-[100px]"
+        />
+
         <button
           type="submit"
-          className="bg-coffee-700 hover:bg-coffee-800 text-white px-4 py-3 rounded-md font-semibold transition"
+          disabled={loading}
+          className="bg-coffee-700 hover:bg-coffee-800 text-white px-4 py-3 rounded-md font-semibold transition disabled:opacity-50"
         >
-          Add Listing
+          {loading ? "Adding..." : "Add Listing"}
         </button>
       </form>
 

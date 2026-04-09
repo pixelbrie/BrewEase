@@ -1,9 +1,5 @@
 export default class PurchasableItem {
-<<<<<<< HEAD
-  constructor({ itemId, itemName, categoryId, basePrice, description=null, previewImage=null, sizes=[], flavors=[], available=true, taxable=true }) {
-=======
   constructor(itemId, itemName, categoryId, basePrice, description=null, previewImage=null, sizes=[], flavors=[], available=true, taxable=true) {
->>>>>>> MichaelCode
     this.itemId = itemId;
     this.itemName = itemName;
     this.categoryId = categoryId;

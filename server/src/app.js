@@ -52,5 +52,5 @@ app.get("/", (req, res) => {
 app.use("/api/customers", customerRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRouter);
-app.use("/", menuRoutes);
+app.use("/api", menuRoutes);
 export default app;

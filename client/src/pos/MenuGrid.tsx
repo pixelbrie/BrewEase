@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
-//menu item params
 type MenuItem = {
-  id: string;
-  name: string;
-  price: number;
-  category: "coffee" | "tea";
+  itemId: string;
+  itemName: string;
+  basePrice: number;
+  categoryId: "coffee" | "tea";
+  description?: string | null;
+  previewImage?: string | null;
 };
 
-// list of modifiers
 type ModifierSelection = {
   size: "small" | "medium" | "large";
   milk: "whole" | "oat" | "almond";
@@ -17,10 +17,9 @@ type ModifierSelection = {
 };
 
 interface MenuGridProps {
-  filterKey: "all" | "coffee" | "tea"; // filter parameter application
-  items: MenuItem[]; // the items json files
+  filterKey: "all" | "coffee" | "tea";
+  items: MenuItem[];
   onAddToCart: (
-    // function to add items into the cart
     item: MenuItem,
     modifiers: ModifierSelection,
     finalPrice: number,
@@ -28,7 +27,7 @@ interface MenuGridProps {
 }
 
 function MenuGrid({ filterKey, items, onAddToCart }: MenuGridProps) {
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null); // state of item selection
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [size, setSize] = useState<"small" | "medium" | "large">("medium");
   const [milk, setMilk] = useState<"whole" | "oat" | "almond">("whole");
   const [note, setNote] = useState("");
@@ -55,8 +54,8 @@ function MenuGrid({ filterKey, items, onAddToCart }: MenuGridProps) {
   };
 
   const handleAddClick = (item: MenuItem) => {
-    if (selectedItemId === item.id) {
-      const finalPrice = getFinalPrice(item.price);
+    if (selectedItemId === item.itemId) {
+      const finalPrice = getFinalPrice(item.basePrice);
 
       onAddToCart(
         item,
@@ -75,7 +74,7 @@ function MenuGrid({ filterKey, items, onAddToCart }: MenuGridProps) {
       return;
     }
 
-    setSelectedItemId(item.id);
+    setSelectedItemId(item.itemId);
     setSize("medium");
     setMilk("whole");
     setNote("");
@@ -92,12 +91,14 @@ function MenuGrid({ filterKey, items, onAddToCart }: MenuGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
       {items.map((item) => {
-        const isOpen = selectedItemId === item.id;
-        const previewPrice = isOpen ? getFinalPrice(item.price) : item.price;
+        const isOpen = selectedItemId === item.itemId;
+        const previewPrice = isOpen
+          ? getFinalPrice(item.basePrice)
+          : item.basePrice;
 
         return (
           <motion.div
-            key={`${filterKey}-${item.id}`}
+            key={`${filterKey}-${item.itemId}`}
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{
               opacity: 1,
@@ -108,19 +109,34 @@ function MenuGrid({ filterKey, items, onAddToCart }: MenuGridProps) {
             layout
             className="bg-coffee-50 border border-coffee-200 rounded-xl p-4 flex flex-col gap-3 shadow-sm"
           >
+            {item.previewImage ? (
+              <img
+                src={item.previewImage}
+                alt={item.itemName}
+                className="w-full h-40 object-cover rounded-lg"
+              />
+            ) : null}
+
             <div className="flex flex-col gap-2">
-              <h3 className="text-xl font-bold text-coffee-900">{item.name}</h3>
-              <p className="text-coffee-700 capitalize">{item.category}</p>
+              <h3 className="text-xl font-bold text-coffee-900">
+                {item.itemName}
+              </h3>
+
+              <p className="text-coffee-700 capitalize">{item.categoryId}</p>
+
+              {item.description ? (
+                <p className="text-sm text-coffee-600">{item.description}</p>
+              ) : null}
+
               <p className="text-lg font-semibold text-coffee-800">
                 ${previewPrice.toFixed(2)}
               </p>
             </div>
 
-            {/* TODO: This is the customize section, take a look and see that can you improve here */}
             <AnimatePresence initial={false}>
               {isOpen ? (
                 <motion.div
-                  key={`${item.id}-customize`}
+                  key={`${item.itemId}-customize`}
                   initial={{ opacity: 0, height: 0, y: -8 }}
                   animate={{ opacity: 1, height: "auto", y: 0 }}
                   exit={{ opacity: 0, height: 0, y: -8 }}

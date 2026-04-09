@@ -8,6 +8,7 @@ import { HiOutlineDocumentReport } from "react-icons/hi";
 import { BsFilePostFill } from "react-icons/bs";
 import { MdMenuBook, MdOutlineSchedule, MdOutlineSchool } from "react-icons/md";
 
+import MenuManagementCard from "./MenuManagementCard.js";
 import CreateEmployeeCard from "./CreateEmployeeCard.js";
 import CreateMenuItemCard from "./CreateMenuItemCard.js";
 import ReportsCard from "./ReportsCard.js";
@@ -159,7 +160,7 @@ function AdminDash() {
             >
               <div className="flex flex-row items-center gap-2">
                 <MdMenuBook size={24} />
-                <p>Create Menu Item</p>
+                <p>Menu</p>
               </div>
             </button>
 
@@ -237,7 +238,11 @@ function AdminDash() {
                 <p className="text-coffee-700">
                   Add a new item to the menu listing.
                 </p>
-                <CreateMenuItemCard />
+
+                <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-4 items-start">
+                  <CreateMenuItemCard />
+                  <MenuManagementCard />
+                </div>
               </div>
             ) : null}
 

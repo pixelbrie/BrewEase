@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FilterContainer from "../../layouts/FilterContainer.js";
 import UserInfoSection from "../../layouts/UserInfoSection.js";
 import CustomerLookupCard, {
@@ -12,10 +12,12 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
 
 type MenuItem = {
-  id: string;
-  name: string;
-  price: number;
-  category: "coffee" | "tea";
+  itemId: string;
+  itemName: string;
+  basePrice: number;
+  categoryId: "coffee" | "tea";
+  description?: string | null;
+  previewImage?: string | null;
 };
 
 type ModifierSelection = {
@@ -43,23 +45,46 @@ function PosDashboard() {
     "all" | "coffee" | "tea"
   >("all");
 
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null,
-  );
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [orderNumber, setOrderNumber] = useState(generateDailyOrderNumber());
   const [lastSubmittedOrderNumber, setLastSubmittedOrderNumber] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOrderReadyOpen, setIsOrderReadyOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const [menuItems] = useState<MenuItem[]>([
-    { id: "1", name: "Latte", price: 4.5, category: "coffee" },
-    { id: "2", name: "Vanilla Latte", price: 5.0, category: "coffee" },
-    { id: "3", name: "Cappuccino", price: 3.5, category: "coffee" },
-    { id: "4", name: "Espresso", price: 2.75, category: "coffee" },
-    { id: "5", name: "Matcha", price: 5.25, category: "tea" },
-    { id: "6", name: "Chai Tea Latte", price: 4.0, category: "tea" },
-  ]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [menuError, setMenuError] = useState("");
+
+  useEffect(() => {
+    const loadMenu = async () => {
+      try {
+        setMenuLoading(true);
+        setMenuError("");
+
+        const response = await fetch("http://localhost:8080/api/menu", {
+          method: "GET",
+          credentials: "include",
+        });
+
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : [];
+
+        if (!response.ok) {
+          throw new Error(data?.error || "Failed to load menu");
+        }
+
+        setMenuItems(Array.isArray(data) ? data : []);
+      } catch (error: any) {
+        console.error("Failed to load menu:", error);
+        setMenuError(error.message || "Failed to load menu");
+      } finally {
+        setMenuLoading(false);
+      }
+    };
+
+    loadMenu();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -75,7 +100,7 @@ function PosDashboard() {
     modifiers: ModifierSelection,
     finalPrice: number,
   ) => {
-    const modifierKey = `${menuItem.id}-${modifiers.size}-${modifiers.milk}-${modifiers.note.trim()}`;
+    const modifierKey = `${menuItem.itemId}-${modifiers.size}-${modifiers.milk}-${modifiers.note.trim()}`;
 
     setCartItems((currentItems) => {
       const existingItem = currentItems.find((item) => item.id === modifierKey);
@@ -92,7 +117,7 @@ function PosDashboard() {
         ...currentItems,
         {
           id: modifierKey,
-          name: menuItem.name,
+          name: menuItem.itemName,
           price: finalPrice,
           quantity: 1,
           modifiers,
@@ -104,7 +129,7 @@ function PosDashboard() {
   const filteredMenuItems =
     selectedCategory === "all"
       ? menuItems
-      : menuItems.filter((item) => item.category === selectedCategory);
+      : menuItems.filter((item) => item.categoryId === selectedCategory);
 
   const handleSelectCategory = (category: "all" | "coffee" | "tea") => {
     setSelectedCategory(category);
@@ -161,16 +186,13 @@ function PosDashboard() {
       }
 
       setLastSubmittedOrderNumber(data?.orderNumber || orderNumber);
-
       setCartItems([]);
       setSelectedCustomer(null);
       setOrderNumber(generateDailyOrderNumber());
       setIsOrderReadyOpen(true);
     } catch (error) {
       console.error("Checkout failed:", error);
-      alert(
-        error instanceof Error ? error.message : "Failed to send order",
-      );
+      alert(error instanceof Error ? error.message : "Failed to send order");
     } finally {
       setCheckoutLoading(false);
     }
@@ -241,13 +263,23 @@ function PosDashboard() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col w-full h-full bg-white rounded-lg shadow-lg p-6 overflow-y-auto gap-4"
             >
-              <div className="flex-1 min-h-0">
-                <MenuGrid
-                  filterKey={selectedCategory}
-                  items={filteredMenuItems}
-                  onAddToCart={handleAddToCart}
-                />
-              </div>
+              {menuLoading ? (
+                <div className="flex items-center justify-center h-full text-coffee-700">
+                  Loading menu...
+                </div>
+              ) : menuError ? (
+                <div className="flex items-center justify-center h-full text-red-600">
+                  {menuError}
+                </div>
+              ) : (
+                <div className="flex-1 min-h-0">
+                  <MenuGrid
+                    filterKey={selectedCategory}
+                    items={filteredMenuItems}
+                    onAddToCart={handleAddToCart}
+                  />
+                </div>
+              )}
             </motion.div>
           </div>
         </div>
