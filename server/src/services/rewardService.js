@@ -8,6 +8,12 @@ const VALID_REWARD_TYPES = ["free_item", "discount"]
 
 const POINTS_PER_DOLLAR = 1
 
+const TIER_MULTIPLIERS = {
+  bronze: 1,
+  silver: 1.25,
+  gold: 1.5,
+}
+
 // ========================
 // Reward Catalog CRUD
 // ========================
@@ -153,16 +159,18 @@ const accumulatePointsForOrder = async (customerId, orderTotal) => {
     throw new Error("orderTotal must be a positive number")
   }
 
-  // Verify the customer exists — surfaces "Customer not found" cleanly instead
-  // of a raw Firestore NOT_FOUND error from the increment below.
+  
   const customer = await getCustomerById(customerId)
 
-  const pointsAwarded = Math.floor(orderTotal * POINTS_PER_DOLLAR)
+  const tier = customer.tier || "bronze"
+  const multiplier = TIER_MULTIPLIERS[tier] ?? 1
+  const pointsAwarded = Math.floor(orderTotal * POINTS_PER_DOLLAR * multiplier)
 
   if (pointsAwarded <= 0) {
-    // Order was under $1 — valid order, just nothing to credit yet.
     return {
       customerId,
+      tier,
+      multiplier,
       pointsAwarded: 0,
       newTotalPoints: customer.loyaltyPoints ?? 0,
     }
@@ -170,11 +178,12 @@ const accumulatePointsForOrder = async (customerId, orderTotal) => {
 
   await updateLoyaltyPoints(customerId, pointsAwarded)
 
-  // Re-fetch to return the post-increment total so the caller can display it.
   const updated = await getCustomerById(customerId)
 
   return {
     customerId,
+    tier,
+    multiplier,
     pointsAwarded,
     newTotalPoints: updated.loyaltyPoints ?? 0,
   }

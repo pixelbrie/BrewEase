@@ -4,6 +4,18 @@ import admin from "firebase-admin"
 const customerCollection = db.collection("customers")
 const orderCollection = db.collection("orders")
 
+const TIER_THRESHOLDS = {
+  bronze: 0,
+  silver: 100,
+  gold: 500,
+}
+
+const getTierFromSpent = (totalSpent) => {
+  if (totalSpent >= TIER_THRESHOLDS.gold) return "gold"
+  if (totalSpent >= TIER_THRESHOLDS.silver) return "silver"
+  return "bronze"
+}
+
 // ========================
 // Customer Profile Creation
 // ========================
@@ -33,6 +45,8 @@ const createCustomer = async ({ firstName, lastName, email, phone }) => {
     email: email || "",
     phone: phone || "",
     loyaltyPoints: 0,
+    totalSpent: 0,
+    tier: "bronze",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
   };
 
@@ -105,8 +119,27 @@ const attachCustomerToOrder = async (orderId, customerId) => {
 };
 
 // ========================
-// Track Total Spent
-// ======================== 
+// Track Total Spent & Tier
+// ========================
+
+const recalculateTier = async (customerId) => {
+  const customerRef = customerCollection.doc(customerId)
+  const doc = await customerRef.get()
+
+  if (!doc.exists) {
+    throw new Error("Customer not found")
+  }
+
+  const data = doc.data()
+  const newTier = getTierFromSpent(data.totalSpent || 0)
+
+  if (data.tier === newTier) {
+    return { customerId, tier: newTier, changed: false }
+  }
+
+  await customerRef.update({ tier: newTier })
+  return { customerId, tier: newTier, changed: true }
+}
 
 const updateTotalSpent = async (customerId, amount) => {
   if (!customerId) {
@@ -120,6 +153,7 @@ const updateTotalSpent = async (customerId, amount) => {
   await customerRef.update({
     totalSpent: admin.firestore.FieldValue.increment(amount),
   });
+  await recalculateTier(customerId);
 }
 
 // ========================
@@ -185,6 +219,7 @@ export {
   lookupCustomer,
   attachCustomerToOrder,
   updateTotalSpent,
+  recalculateTier,
   getOrderHistory,
   updateLoyaltyPoints,
   updateLastVisit,
