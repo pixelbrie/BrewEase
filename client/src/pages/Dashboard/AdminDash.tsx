@@ -3,19 +3,35 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
 import UserInfoSection from "../../layouts/UserInfoSection.js";
-import DropDownList from "../../components/DropDownList.js";
-import { FaUserPlus } from "react-icons/fa";
+import { FaUserPlus, FaClipboardList } from "react-icons/fa";
 import { HiOutlineDocumentReport } from "react-icons/hi";
 import { BsFilePostFill } from "react-icons/bs";
+import { MdMenuBook, MdOutlineSchedule, MdOutlineSchool } from "react-icons/md";
 
 import CreateEmployeeCard from "./CreateEmployeeCard.js";
+import CreateMenuItemCard from "./CreateMenuItemCard.js";
+import ReportsCard from "./ReportsCard.js";
+import ScheduleCard from "./ScheduleCard.js";
+import ClockInOutCard from "./ClockInOutCard.js";
 
-type AdminView = "create-user" | "reports";
+type AdminView =
+  | "create-user"
+  | "create-menu"
+  | "reports"
+  | "schedule"
+  | "training";
 
 function AdminDash() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
   const [activeView, setActiveView] = useState<AdminView>("create-user");
+
+  const mockTraining = [
+    { id: 1, title: "Admin Panel Overview", status: "Complete" },
+    { id: 2, title: "Employee Account Setup", status: "In Progress" },
+    { id: 3, title: "Menu Publishing Flow", status: "Not Started" },
+    { id: 4, title: "Daily Report Review", status: "Complete" },
+  ];
 
   const handleLogout = async () => {
     try {
@@ -26,10 +42,6 @@ function AdminDash() {
     }
   };
 
-  const handleCreateUser = () => {
-    console.log("Create User Clicked!");
-    // TODO: implement backend user creation
-  };
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
@@ -50,10 +62,72 @@ function AdminDash() {
           onLogout={handleLogout}
         />
 
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+          >
+            <ClockInOutCard />
+          </motion.div>
+
+          <motion.div
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="bg-white rounded-lg shadow-lg p-6 h-full flex flex-col justify-between"
+          >
+            <div>
+              <h2 className="text-2xl font-bold text-coffee-900 mb-4">
+                Admin Quick Info
+              </h2>
+
+              <div className="space-y-3 text-coffee-800">
+                <p>
+                  Logged in as:{" "}
+                  <span className="font-semibold">
+                    {user?.displayName || "Admin User"}
+                  </span>
+                </p>
+
+                <p>
+                  Role:{" "}
+                  <span className="font-semibold">
+                    {user?.role || "admin"}
+                  </span>
+                </p>
+
+                <p>
+                  Current section:{" "}
+                  <span className="font-semibold">
+                    {activeView === "create-user" && "Create User"}
+                    {activeView === "create-menu" && "Create Menu Item"}
+                    {activeView === "reports" && "Reports"}
+                    {activeView === "schedule" && "Schedule"}
+                    {activeView === "training" && "Training"}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
+                <p className="text-sm text-coffee-600">Pending Tasks</p>
+                <p className="text-2xl font-bold text-coffee-900">6</p>
+              </div>
+
+              <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
+                <p className="text-sm text-coffee-600">Menu Updates</p>
+                <p className="text-2xl font-bold text-coffee-900">3</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
           className="flex w-full min-h-[650px] bg-white rounded-lg shadow-lg overflow-hidden"
         >
           <aside className="w-[240px] shrink-0 bg-coffee-900 text-white p-4 flex flex-col gap-3">
@@ -61,7 +135,6 @@ function AdminDash() {
               Admin Panel
             </h2>
 
-            {/* Create User Button */}
             <button
               onClick={() => setActiveView("create-user")}
               className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
@@ -70,13 +143,26 @@ function AdminDash() {
                   : "bg-coffee-800 hover:bg-coffee-700 text-white"
               }`}
             >
-              <div className="flex flex-row gap-2">
-                <FaUserPlus size={24} />
+              <div className="flex flex-row items-center gap-2">
+                <FaUserPlus size={22} />
                 <p>Create User</p>
               </div>
             </button>
 
-            {/* Create Reports Button */}
+            <button
+              onClick={() => setActiveView("create-menu")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "create-menu"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              <div className="flex flex-row items-center gap-2">
+                <MdMenuBook size={24} />
+                <p>Create Menu Item</p>
+              </div>
+            </button>
+
             <button
               onClick={() => setActiveView("reports")}
               className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
@@ -85,9 +171,37 @@ function AdminDash() {
                   : "bg-coffee-800 hover:bg-coffee-700 text-white"
               }`}
             >
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <HiOutlineDocumentReport size={24} />
                 <p>Reports</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActiveView("schedule")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "schedule"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              <div className="flex flex-row items-center gap-2">
+                <MdOutlineSchedule size={24} />
+                <p>Schedule</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActiveView("training")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "training"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              <div className="flex flex-row items-center gap-2">
+                <MdOutlineSchool size={24} />
+                <p>Training</p>
               </div>
             </button>
 
@@ -95,7 +209,7 @@ function AdminDash() {
               onClick={() => navigate("/pos")}
               className="mt-auto w-full text-left px-4 py-3 rounded-md font-semibold bg-coffee-700 hover:bg-coffee-600 transition"
             >
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row items-center gap-2">
                 <BsFilePostFill size={24} />
                 <p>Open POS</p>
               </div>
@@ -111,39 +225,19 @@ function AdminDash() {
                 <p className="text-coffee-700">
                   Add new employees and assign their role.
                 </p>
+                <CreateEmployeeCard />
+              </div>
+            ) : null}
 
-                <div className="flex flex-col gap-8 justify-between">
-                  <input
-                    type="text"
-                    placeholder="First Name"
-                    className="border border-gray-300 rounded-md p-3 py-4"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Last Name"
-                    className="border border-gray-300 rounded-md p-3 py-4"
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    className="border border-gray-300 rounded-md p-3 py-4"
-                  />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    className="border border-gray-300 rounded-md p-3 py-4"
-                  />
-
-                  {/* TODO: check that these name are linked to the Firebase role naming system */}
-                  <DropDownList
-                    label="Employee Role"
-                    options={["Admin", "Kitchen", "Barista", "Manager"]}
-                  />
-                </div>
-
-                <button className="w-full bg-coffee-800 hover:bg-coffee-900 text-white px-6 py-5 rounded-md font-semibold transition  text-lg shadow-md">
-                  Create Employee
-                </button>
+            {activeView === "create-menu" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">
+                  Create Menu Item
+                </h2>
+                <p className="text-coffee-700">
+                  Add a new item to the menu listing.
+                </p>
+                <CreateMenuItemCard />
               </div>
             ) : null}
 
@@ -153,22 +247,51 @@ function AdminDash() {
                 <p className="text-coffee-700">
                   View high-level operational metrics.
                 </p>
+                <ReportsCard />
+              </div>
+            ) : null}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
-                    <p className="text-sm text-coffee-600">Orders Today</p>
-                    <p className="text-2xl font-bold text-coffee-900">148</p>
-                  </div>
+            {activeView === "schedule" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">
+                  Schedule
+                </h2>
+                <p className="text-coffee-700">
+                  Review the current static schedule view for admin.
+                </p>
+                <ScheduleCard />
+              </div>
+            ) : null}
 
-                  <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
-                    <p className="text-sm text-coffee-600">Revenue</p>
-                    <p className="text-2xl font-bold text-coffee-900">$1,284</p>
-                  </div>
+            {activeView === "training" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">
+                  Training
+                </h2>
+                <p className="text-coffee-700">
+                  Track admin-side training and onboarding items.
+                </p>
 
-                  <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
-                    <p className="text-sm text-coffee-600">Top Item</p>
-                    <p className="text-2xl font-bold text-coffee-900">Latte</p>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {mockTraining.map((item) => (
+                    <div
+                      key={item.id}
+                      className="border border-coffee-200 rounded-lg p-4 bg-coffee-50"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-coffee-900">
+                            {item.title}
+                          </p>
+                          <p className="text-sm text-coffee-600 mt-1">
+                            Status: {item.status}
+                          </p>
+                        </div>
+
+                        <FaClipboardList className="text-coffee-700" size={20} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : null}

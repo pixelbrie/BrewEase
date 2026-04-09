@@ -35,6 +35,7 @@ function generateDailyOrderNumber() {
 function PosDashboard() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
+
   const canReturnToAdmin =
     user?.role === "admin" || user?.role === "manager";
 
@@ -46,8 +47,10 @@ function PosDashboard() {
     null,
   );
   const [orderNumber, setOrderNumber] = useState(generateDailyOrderNumber());
+  const [lastSubmittedOrderNumber, setLastSubmittedOrderNumber] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOrderReadyOpen, setIsOrderReadyOpen] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const [menuItems] = useState<MenuItem[]>([
     { id: "1", name: "Latte", price: 4.5, category: "coffee" },
@@ -107,14 +110,70 @@ function PosDashboard() {
     setSelectedCategory(category);
   };
 
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
+  const handleCheckout = async () => {
+    if (cartItems.length === 0 || checkoutLoading) {
       return;
     }
 
-    setCartItems([]);
-    setOrderNumber(generateDailyOrderNumber());
-    setIsOrderReadyOpen(true);
+    const subtotal = cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+
+    const payload = {
+      items: cartItems.map((item) => ({
+        itemId: item.id,
+        itemName: item.name,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        lineTotal: item.price * item.quantity,
+        modifiers: item.modifiers || null,
+      })),
+      customerId: selectedCustomer?.customerId || null,
+      customerName: selectedCustomer
+        ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}`.trim()
+        : "Guest",
+      orderType: "in-store",
+      notes: "",
+      subtotal,
+      tax: 0,
+      total: subtotal,
+      status: "sent",
+    };
+
+    try {
+      setCheckoutLoading(true);
+
+      const response = await fetch("http://localhost:8080/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to send order");
+      }
+
+      setLastSubmittedOrderNumber(data?.orderNumber || orderNumber);
+
+      setCartItems([]);
+      setSelectedCustomer(null);
+      setOrderNumber(generateDailyOrderNumber());
+      setIsOrderReadyOpen(true);
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to send order",
+      );
+    } finally {
+      setCheckoutLoading(false);
+    }
   };
 
   if (loading) {
@@ -196,7 +255,10 @@ function PosDashboard() {
 
       <AnimatePresence>
         {isOrderReadyOpen ? (
-          <OrderReadySplash onClose={() => setIsOrderReadyOpen(false)} />
+          <OrderReadySplash
+            orderNumber={lastSubmittedOrderNumber}
+            onClose={() => setIsOrderReadyOpen(false)}
+          />
         ) : null}
       </AnimatePresence>
     </>

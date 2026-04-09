@@ -1,9 +1,9 @@
 import { useState } from "react";
 
-type MenuCategory = "coffee" | "tea" | "latte";
+type MenuCategory = "coffee" | "tea";
 
 interface CreateMenuItemCardProps {
-  onCreateMenuItem: (item: {
+  onCreateMenuItem?: (item: {
     name: string;
     price: number;
     category: MenuCategory;
@@ -18,6 +18,7 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
   });
 
   const [createdMessage, setCreatedMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -28,33 +29,44 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
     }));
   };
 
-  const handleCreate = (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCreatedMessage("");
+    setError("");
 
     const parsedPrice = Number(form.price);
 
-    if (!form.name.trim() || Number.isNaN(parsedPrice)) {
+    if (!form.name.trim() || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
+      setError("Please enter a valid item name and price.");
       return;
     }
 
-    onCreateMenuItem({
+    const newItem = {
       name: form.name.trim(),
       price: parsedPrice,
       category: form.category,
-    });
+    };
 
-    setCreatedMessage(`${form.name.trim()} added to menu`);
+    try {
+      if (onCreateMenuItem) {
+        onCreateMenuItem(newItem);
+      }
 
-    setForm({
-      name: "",
-      price: "",
-      category: "coffee",
-    });
+      setCreatedMessage(`${newItem.name} added to menu`);
+
+      setForm({
+        name: "",
+        price: "",
+        category: "coffee",
+      });
+    } catch (err: any) {
+      setError(err.message || "Failed to create menu item.");
+    }
   };
 
   return (
-    <div className="bg-coffee-50 rounded-lg p-4 h-full">
-      <h2 className="text-xl font-bold text-coffee-900 mb-3">
+    <div className="bg-white rounded-lg shadow-lg p-6 h-full">
+      <h2 className="text-2xl font-bold text-coffee-900 mb-4">
         Create Menu Listing
       </h2>
 
@@ -72,6 +84,7 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
           name="price"
           type="number"
           step="0.01"
+          min="0"
           value={form.price}
           onChange={handleChange}
           placeholder="Price"
@@ -87,7 +100,6 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
         >
           <option value="coffee">coffee</option>
           <option value="tea">tea</option>
-          <option value="latte">latte</option>
         </select>
 
         <button
@@ -101,6 +113,12 @@ function CreateMenuItemCard({ onCreateMenuItem }: CreateMenuItemCardProps) {
       {createdMessage ? (
         <div className="mt-4 bg-green-100 text-green-800 p-3 rounded-md text-sm">
           {createdMessage}
+        </div>
+      ) : null}
+
+      {error ? (
+        <div className="mt-4 bg-red-100 text-red-800 p-3 rounded-md text-sm">
+          {error}
         </div>
       ) : null}
     </div>

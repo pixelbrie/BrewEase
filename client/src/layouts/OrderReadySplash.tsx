@@ -2,12 +2,14 @@ import React from "react";
 import { motion } from "motion/react";
 
 interface OrderReadySplashProps {
-  onClose: () => void; //  Callback function to close the splash and return to the dashboard
+  orderNumber: string;
+  onClose: () => void;
 }
 
-// The OrderReadySplash component is a modal that appears when an order is marked as ready.
-// It provides feedback to the user that the order has been successfully processed and sent to the barista queue.
-function OrderReadySplash({ onClose }: OrderReadySplashProps) {
+function OrderReadySplash({
+  orderNumber,
+  onClose,
+}: OrderReadySplashProps) {
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center bg-coffee-900/35 p-8 backdrop-blur-sm"
@@ -25,16 +27,26 @@ function OrderReadySplash({ onClose }: OrderReadySplashProps) {
         <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-coffee-700 text-5xl text-white">
           ✓
         </div>
-        <h2 className="text-4xl font-bold text-coffee-900">Order Ready</h2>
+
+        <h2 className="text-4xl font-bold text-coffee-900">Order Sent</h2>
+
         <p className="mt-4 max-w-lg text-lg text-neutral-600">
-          Payment was successful. The order has been sent to the order queue.
+          The order has been sent successfully.
         </p>
+
+        <div className="mt-5 rounded-2xl bg-coffee-100 px-6 py-4">
+          <p className="text-sm uppercase tracking-[0.2em] text-coffee-600">
+            Order Number
+          </p>
+          <p className="text-2xl font-bold text-coffee-900">{orderNumber}</p>
+        </div>
+
         <button
           type="button"
           onClick={onClose}
           className="mt-10 rounded-full bg-coffee-700 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-coffee-900"
         >
-          Back To Dashboard
+          Start New Order
         </button>
       </motion.div>
     </motion.div>

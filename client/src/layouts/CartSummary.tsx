@@ -23,6 +23,12 @@ interface CartSummaryProps {
   onCheckout: () => void;
 }
 
+function getRewardTier(points: number) {
+  if (points >= 100) return "Gold";
+  if (points >= 40) return "Silver";
+  return "Bronze";
+}
+
 function CartSummary({
   customer,
   orderNumber,
@@ -55,35 +61,30 @@ function CartSummary({
           <p className="text-sm text-coffee-700">
             Rewards:{" "}
             <span className="font-semibold">
-              {customer.rewardsPoints} pts · {customer.rewardsTier}
+              {customer.loyaltyPoints ?? 0} pts ·{" "}
+              {getRewardTier(customer.loyaltyPoints ?? 0)}
             </span>
           </p>
         ) : null}
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* when it is empty */}
         {items.length === 0 ? (
           <div className="rounded-lg border border-dashed border-coffee-300 p-4 text-sm text-coffee-600">
             No items in cart yet.
           </div>
         ) : (
-          // when it has more than 1 item
           items.map((item) => (
             <div
               key={item.id}
-              // this is the main card container
               className="rounded-lg border border-coffee-200 bg-coffee-50 p-4 shadow-md"
             >
-              {/* item info constainer */}
               <div className="flex flex-row justify-between items-start gap-3">
                 <div>
-                  {/* title of the item */}
                   <p className="font-semibold text-coffee-900">
                     {item.name} x{item.quantity}
                   </p>
 
-                  {/* modifiers listings */}
                   {item.modifiers ? (
                     <div className="mt-2 text-sm text-coffee-700 space-y-1">
                       <p>Size: {item.modifiers.size}</p>
