@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUser, FaLock } from "react-icons/fa";
 import { FiDelete } from "react-icons/fi";
 import brewEaseLogo from "../../assets/images/BrewEaseLogoTrans.png";
 import backgroundLogin from "../../assets/images/BackgroundLogin.png";
@@ -10,9 +10,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { useAuth } from "../../context/AuthContext";
 
 interface EmployeeLoginContainerProps {
-  email: string;
+  username: string;
   password: string;
-  onEmailChange: (value: string) => void;
+  onUsernameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onLogin: () => void;
   loading: boolean;
@@ -28,9 +28,9 @@ interface AgentLoginContainerProps {
 }
 
 function EmployeeLoginContainer({
-  email,
+  username,
   password,
-  onEmailChange,
+  onUsernameChange,
   onPasswordChange,
   onLogin,
   loading,
@@ -43,11 +43,11 @@ function EmployeeLoginContainer({
       </p>
 
       <Input
-        placeholder="Email"
-        type="email"
-        icon={<FaEnvelope />}
-        value={email}
-        onChange={(e) => onEmailChange(e.target.value)}
+        placeholder="Username"
+        type="text"
+        icon={<FaUser />}
+        value={username}
+        onChange={(e) => onUsernameChange(e.target.value)}
       />
 
       <Input
@@ -216,7 +216,7 @@ function LoginContainer() {
   const navigate = useNavigate();
   const { login, refreshUser } = useAuth();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pin, setPin] = useState("");
   const [currentPage, setCurrentPage] = useState<"employee" | "agent">("employee");
@@ -226,14 +226,14 @@ function LoginContainer() {
   const handleEmployeeLogin = async () => {
     setError("");
 
-    if (!email || !password) {
-      setError("Please enter your email and password.");
+    if (!username || !password) {
+      setError("Please enter your username and password.");
       return;
     }
 
     try {
       setLoading(true);
-      await login(email, password);
+      await login(username, password);
       navigate("/dashboard");
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -349,9 +349,9 @@ function LoginContainer() {
               >
                 {currentPage === "employee" ? (
                   <EmployeeLoginContainer
-                    email={email}
+                    username={username}
                     password={password}
-                    onEmailChange={setEmail}
+                    onUsernameChange={setUsername}
                     onPasswordChange={setPassword}
                     onLogin={handleEmployeeLogin}
                     loading={loading}

@@ -28,25 +28,92 @@ async function generateUniquePin() {
   return pin;
 }
 
+function sanitizeLetters(value = "") {
+  return value.toLowerCase().replace(/[^a-z]/g, "");
+}
+
+function getRandomDigitsFromDob(dateOfBirth) {
+  const dobDigits = (dateOfBirth || "").replace(/\D/g, "");
+
+  if (dobDigits.length < 3) {
+    throw new Error("Date of birth must contain at least 3 digits");
+  }
+
+  let result = "";
+
+  for (let i = 0; i < 3; i += 1) {
+    const randomIndex = Math.floor(Math.random() * dobDigits.length);
+    result += dobDigits[randomIndex];
+  }
+
+  return result;
+}
+
+function buildEmployeeUsername(firstName, lastName, dateOfBirth) {
+  const cleanFirst = sanitizeLetters(firstName);
+  const cleanLast = sanitizeLetters(lastName);
+
+  if (!cleanFirst || !cleanLast) {
+    throw new Error("First name and last name are required");
+  }
+
+  const firstInitial = cleanFirst.charAt(0);
+  const lastPart = cleanLast.slice(0, 4).padEnd(4, "x");
+  const dobPart = getRandomDigitsFromDob(dateOfBirth);
+
+  return `${firstInitial}${lastPart}${dobPart}`;
+}
+
+async function generateUniqueEmployeeUsername(firstName, lastName, dateOfBirth) {
+  let username = "";
+  let exists = true;
+
+  while (exists) {
+    username = buildEmployeeUsername(firstName, lastName, dateOfBirth);
+
+    const snapshot = await db
+      .collection("users")
+      .where("username", "==", username)
+      .limit(1)
+      .get();
+
+    exists = !snapshot.empty;
+  }
+
+  return username;
+}
+
+function buildEmployeeEmailFromUsername(username) {
+  return `${username}@brewease.com`;
+}
+
 // POST /api/auth/signup
 export const signup = async (req, res) => {
   try {
     const {
-      email,
       password,
       displayName,
       role,
       firstName,
       lastName,
+      dateOfBirth,
     } = req.body;
 
-    if (!email || !password || !role) {
+    if (!password || !role || !firstName || !lastName || !dateOfBirth) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     if (!validRoles.includes(role)) {
       return res.status(400).json({ error: "Invalid role" });
     }
+
+    const generatedUsername = await generateUniqueEmployeeUsername(
+      firstName,
+      lastName,
+      dateOfBirth
+    );
+
+    const generatedEmail = buildEmployeeEmailFromUsername(generatedUsername);
 
     const resolvedDisplayName =
       displayName || [firstName, lastName].filter(Boolean).join(" ").trim();
@@ -60,7 +127,7 @@ export const signup = async (req, res) => {
     const generatedPin = await generateUniquePin();
 
     const userRecord = await auth.createUser({
-      email,
+      email: generatedEmail,
       password,
       displayName: resolvedDisplayName,
     });
@@ -69,10 +136,12 @@ export const signup = async (req, res) => {
 
     await db.collection("users").doc(uid).set({
       uid,
-      email,
+      username: generatedUsername,
+      email: generatedEmail,
       displayName: resolvedDisplayName,
       firstName: firstName || null,
       lastName: lastName || null,
+      dateOfBirth: dateOfBirth || null,
       role,
       pin: generatedPin,
       createdAt: FieldValue.serverTimestamp(),
@@ -81,10 +150,12 @@ export const signup = async (req, res) => {
 
     return res.status(201).json({
       uid,
-      email,
+      username: generatedUsername,
+      email: generatedEmail,
       displayName: resolvedDisplayName,
       firstName: firstName || null,
       lastName: lastName || null,
+      dateOfBirth: dateOfBirth || null,
       role,
       pin: generatedPin,
       message: "User created successfully",
@@ -106,29 +177,34 @@ export const signup = async (req, res) => {
 // POST /api/auth/login
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username and password are required" });
     }
 
-    const userRecord = await auth.getUserByEmail(email).catch(() => null);
+    const snapshot = await db
+      .collection("users")
+      .where("username", "==", username)
+      .limit(1)
+      .get();
 
-    if (!userRecord) {
+    if (snapshot.empty) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const userDoc = await db.collection("users").doc(userRecord.uid).get();
+    const userDoc = snapshot.docs[0];
+    const userData = userDoc.data();
 
-    if (!userDoc.exists) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    req.session.userId = userRecord.uid;
+    req.session.userId = userData.uid;
 
     return res.status(200).json({
       message: "Login successful",
-      uid: userRecord.uid,
+      uid: userData.uid,
+      username: userData.username ?? null,
+      email: userData.email ?? null,
+      displayName: userData.displayName ?? null,
+      role: userData.role ?? null,
     });
   } catch (error) {
     console.error("Login error:", error.message);
@@ -173,6 +249,8 @@ export const pinLogin = async (req, res) => {
 
     return res.status(200).json({
       uid: matchedUser.uid,
+      username: matchedUser.username ?? null,
+      email: matchedUser.email ?? null,
       displayName: matchedUser.displayName,
       role: matchedUser.role,
       pin: matchedUser.pin,
@@ -232,10 +310,12 @@ export const getCurrentUser = async (req, res) => {
 
     return res.status(200).json({
       uid: userData.uid,
+      username: userData.username ?? null,
       email: userData.email,
       displayName: userData.displayName,
       firstName: userData.firstName ?? null,
       lastName: userData.lastName ?? null,
+      dateOfBirth: userData.dateOfBirth ?? null,
       role: userData.role,
       pin: userData.pin,
       createdAt: userData.createdAt ?? null,
@@ -279,10 +359,12 @@ export const getAllUsers = async (req, res) => {
 
       return {
         uid: data.uid,
+        username: data.username ?? null,
         email: data.email,
         displayName: data.displayName,
         firstName: data.firstName ?? null,
         lastName: data.lastName ?? null,
+        dateOfBirth: data.dateOfBirth ?? null,
         role: data.role,
         pin: data.pin,
       };

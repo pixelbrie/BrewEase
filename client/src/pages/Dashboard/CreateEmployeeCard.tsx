@@ -1,20 +1,23 @@
-import { useState } from "react";
+import React, { useState } from "react";
 
 function CreateEmployeeCard() {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    email: "",
+    dateOfBirth: "",
     password: "",
     role: "barista",
   });
 
-  const [loading, setLoading] = useState(false);
   const [createdMessage, setCreatedMessage] = useState("");
+  const [generatedUsername, setGeneratedUsername] = useState("");
+  const [generatedEmail, setGeneratedEmail] = useState("");
+  const [generatedPin, setGeneratedPin] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     setForm((prev) => ({
       ...prev,
@@ -22,23 +25,42 @@ function CreateEmployeeCard() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
     setCreatedMessage("");
+    setGeneratedUsername("");
+    setGeneratedEmail("");
+    setGeneratedPin("");
+    setError("");
 
     try {
-      const data = await createEmployee(form);
+      setLoading(true);
 
-      setCreatedMessage(
-        `Employee created: ${data.displayName} | Role: ${data.role} | POS PIN: ${data.pin}`,
-      );
+      const response = await fetch("http://localhost:8080/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(form),
+      });
+
+      const text = await response.text();
+      const data = text ? JSON.parse(text) : null;
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to create employee");
+      }
+
+      setCreatedMessage("Employee created successfully");
+      setGeneratedUsername(data?.username || "");
+      setGeneratedEmail(data?.email || "");
+      setGeneratedPin(data?.pin || "");
 
       setForm({
         firstName: "",
         lastName: "",
-        email: "",
+        dateOfBirth: "",
         password: "",
         role: "barista",
       });
@@ -55,7 +77,7 @@ function CreateEmployeeCard() {
         Create Employee
       </h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-3">
+      <form onSubmit={handleCreate} className="grid grid-cols-1 gap-3">
         <input
           name="firstName"
           value={form.firstName}
@@ -75,11 +97,10 @@ function CreateEmployeeCard() {
         />
 
         <input
-          name="email"
-          type="email"
-          value={form.email}
+          name="dateOfBirth"
+          type="date"
+          value={form.dateOfBirth}
           onChange={handleChange}
-          placeholder="Email"
           className="border border-coffee-300 rounded-md p-3"
           required
         />
@@ -89,7 +110,7 @@ function CreateEmployeeCard() {
           type="password"
           value={form.password}
           onChange={handleChange}
-          placeholder="Password"
+          placeholder="Temporary password"
           className="border border-coffee-300 rounded-md p-3"
           required
         />
@@ -101,28 +122,48 @@ function CreateEmployeeCard() {
           className="border border-coffee-300 rounded-md p-3"
         >
           <option value="barista">barista</option>
+          <option value="kitchen">kitchen</option>
           <option value="manager">manager</option>
           <option value="admin">admin</option>
-          <option value="kitchen">kitchen</option>
         </select>
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-coffee-800 hover:bg-coffee-900 text-white px-4 py-3 rounded-md font-semibold transition"
+          className="bg-coffee-700 hover:bg-coffee-800 text-white px-4 py-3 rounded-md font-semibold transition disabled:opacity-50"
         >
           {loading ? "Creating..." : "Create Employee"}
         </button>
       </form>
 
       {createdMessage ? (
-        <div className="mt-4 bg-green-100 text-green-800 p-3 rounded-md">
+        <div className="mt-4 bg-green-100 text-green-800 p-3 rounded-md text-sm">
           {createdMessage}
         </div>
       ) : null}
 
+      {generatedUsername ? (
+        <div className="mt-4 bg-coffee-100 text-coffee-900 p-3 rounded-md text-sm">
+          Generated username:{" "}
+          <span className="font-bold">{generatedUsername}</span>
+        </div>
+      ) : null}
+
+      {generatedEmail ? (
+        <div className="mt-3 bg-coffee-100 text-coffee-900 p-3 rounded-md text-sm">
+          Generated email:{" "}
+          <span className="font-bold">{generatedEmail}</span>
+        </div>
+      ) : null}
+
+      {generatedPin ? (
+        <div className="mt-3 bg-coffee-100 text-coffee-900 p-3 rounded-md text-sm">
+          Generated PIN: <span className="font-bold">{generatedPin}</span>
+        </div>
+      ) : null}
+
       {error ? (
-        <div className="mt-4 bg-red-100 text-red-800 p-3 rounded-md">
+        <div className="mt-4 bg-red-100 text-red-800 p-3 rounded-md text-sm">
           {error}
         </div>
       ) : null}
