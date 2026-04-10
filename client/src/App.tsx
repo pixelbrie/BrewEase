@@ -2,29 +2,48 @@ import React from "react";
 import LoginContainer from "./pages/Auth/Login.js";
 import Signup from "./pages/Auth/Signup.js";
 import Dashboard from "./pages/Dashboard/Dashboard.js";
+import AdminDash from "./pages/Dashboard/AdminDash.js";
+import PosDashboard from "./pages/Dashboard/PosDashboard.js";
 import MenuPage from "./pages/Menu/MenuPage.js";
 import { Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext.js";
+import { AuthProvider, useAuth } from "./context/AuthContext.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
-import TestPage from "./pages/TestPage.js";
+
+function RoleBasedDashboard() {
+  const { user } = useAuth();
+
+  if (user?.role === "admin" || user?.role === "manager") {
+    return <AdminDash />;
+  }
+
+  return <Dashboard />;
+}
 
 function App() {
   return (
     <AuthProvider>
       <Routes>
-        {/* Pre Auth Pages */}
         <Route path="/" element={<LoginContainer />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Post Auth Pages */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <RoleBasedDashboard />
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/pos"
+          element={
+            <ProtectedRoute>
+              <PosDashboard />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/menu"
           element={
@@ -33,8 +52,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        <Route path="/testPage" element={<TestPage />} />
       </Routes>
     </AuthProvider>
   );

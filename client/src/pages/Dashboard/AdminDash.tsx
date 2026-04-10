@@ -3,24 +3,35 @@ import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.js";
 import UserInfoSection from "../../layouts/UserInfoSection.js";
-import ClockInOutCard from "./ClockInOutCard.js";
-import ScheduleCard from "./ScheduleCard.js";
+import { FaUserPlus, FaClipboardList } from "react-icons/fa";
+import { HiOutlineDocumentReport } from "react-icons/hi";
 import { BsFilePostFill } from "react-icons/bs";
-import { MdOutlineSchedule, MdOutlineSchool } from "react-icons/md";
-import { FaClipboardList } from "react-icons/fa";
+import { MdMenuBook, MdOutlineSchedule, MdOutlineSchool } from "react-icons/md";
 
-type EmployeeView = "schedule" | "training";
+import MenuManagementCard from "./MenuManagementCard.js";
+import CreateEmployeeCard from "./CreateEmployeeCard.js";
+import CreateMenuItemCard from "./CreateMenuItemCard.js";
+import ReportsCard from "./ReportsCard.js";
+import ScheduleCard from "./ScheduleCard.js";
+import ClockInOutCard from "./ClockInOutCard.js";
 
-function Dashboard() {
+type AdminView =
+  | "create-user"
+  | "create-menu"
+  | "reports"
+  | "schedule"
+  | "training";
+
+function AdminDash() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
-  const [activeView, setActiveView] = useState<EmployeeView>("schedule");
+  const [activeView, setActiveView] = useState<AdminView>("create-user");
 
   const mockTraining = [
-    { id: 1, title: "POS Basics", status: "Complete" },
-    { id: 2, title: "Drink Build Standards", status: "In Progress" },
-    { id: 3, title: "Customer Service Flow", status: "Not Started" },
-    { id: 4, title: "Opening Shift Checklist", status: "Complete" },
+    { id: 1, title: "Admin Panel Overview", status: "Complete" },
+    { id: 2, title: "Employee Account Setup", status: "In Progress" },
+    { id: 3, title: "Menu Publishing Flow", status: "Not Started" },
+    { id: 4, title: "Daily Report Review", status: "Complete" },
   ];
 
   const handleLogout = async () => {
@@ -36,7 +47,7 @@ function Dashboard() {
     return (
       <div className="flex items-center justify-center h-screen w-screen bg-coffee-300">
         <p className="text-xl font-semibold text-coffee-900">
-          Loading employee portal...
+          Loading admin dashboard...
         </p>
       </div>
     );
@@ -69,27 +80,30 @@ function Dashboard() {
           >
             <div>
               <h2 className="text-2xl font-bold text-coffee-900 mb-4">
-                Employee Quick Info
+                Admin Quick Info
               </h2>
 
               <div className="space-y-3 text-coffee-800">
                 <p>
                   Logged in as:{" "}
                   <span className="font-semibold">
-                    {user?.displayName || "Employee User"}
+                    {user?.displayName || "Admin User"}
                   </span>
                 </p>
 
                 <p>
                   Role:{" "}
                   <span className="font-semibold">
-                    {user?.role || "employee"}
+                    {user?.role || "admin"}
                   </span>
                 </p>
 
                 <p>
                   Current section:{" "}
                   <span className="font-semibold">
+                    {activeView === "create-user" && "Create User"}
+                    {activeView === "create-menu" && "Create Menu Item"}
+                    {activeView === "reports" && "Reports"}
                     {activeView === "schedule" && "Schedule"}
                     {activeView === "training" && "Training"}
                   </span>
@@ -99,13 +113,13 @@ function Dashboard() {
 
             <div className="mt-6 grid grid-cols-2 gap-3">
               <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
-                <p className="text-sm text-coffee-600">Shift Status</p>
-                <p className="text-2xl font-bold text-coffee-900">Active</p>
+                <p className="text-sm text-coffee-600">Pending Tasks</p>
+                <p className="text-2xl font-bold text-coffee-900">6</p>
               </div>
 
               <div className="bg-coffee-50 border border-coffee-200 rounded-lg p-4">
-                <p className="text-sm text-coffee-600">Training Items</p>
-                <p className="text-2xl font-bold text-coffee-900">2</p>
+                <p className="text-sm text-coffee-600">Menu Updates</p>
+                <p className="text-2xl font-bold text-coffee-900">3</p>
               </div>
             </div>
           </motion.div>
@@ -119,8 +133,50 @@ function Dashboard() {
         >
           <aside className="w-[240px] shrink-0 bg-coffee-900 text-white p-4 flex flex-col gap-3">
             <h2 className="text-xl font-bold border-b border-coffee-700 pb-3">
-              Employee Portal
+              Admin Panel
             </h2>
+
+            <button
+              onClick={() => setActiveView("create-user")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "create-user"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              <div className="flex flex-row items-center gap-2">
+                <FaUserPlus size={22} />
+                <p>Create User</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActiveView("create-menu")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "create-menu"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              <div className="flex flex-row items-center gap-2">
+                <MdMenuBook size={24} />
+                <p>Menu</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActiveView("reports")}
+              className={`w-full text-left px-4 py-3 rounded-md font-semibold transition ${
+                activeView === "reports"
+                  ? "bg-white text-coffee-900"
+                  : "bg-coffee-800 hover:bg-coffee-700 text-white"
+              }`}
+            >
+              <div className="flex flex-row items-center gap-2">
+                <HiOutlineDocumentReport size={24} />
+                <p>Reports</p>
+              </div>
+            </button>
 
             <button
               onClick={() => setActiveView("schedule")}
@@ -162,13 +218,51 @@ function Dashboard() {
           </aside>
 
           <section className="flex-1 p-6 overflow-y-auto bg-white">
+            {activeView === "create-user" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">
+                  Create User
+                </h2>
+                <p className="text-coffee-700">
+                  Add new employees and assign their role.
+                </p>
+                <CreateEmployeeCard />
+              </div>
+            ) : null}
+
+            {activeView === "create-menu" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">
+                  Create Menu Item
+                </h2>
+                <p className="text-coffee-700">
+                  Add a new item to the menu listing.
+                </p>
+
+                <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-4 items-start">
+                  <CreateMenuItemCard />
+                  <MenuManagementCard />
+                </div>
+              </div>
+            ) : null}
+
+            {activeView === "reports" ? (
+              <div className="flex flex-col gap-4">
+                <h2 className="text-3xl font-bold text-coffee-900">Reports</h2>
+                <p className="text-coffee-700">
+                  View high-level operational metrics.
+                </p>
+                <ReportsCard />
+              </div>
+            ) : null}
+
             {activeView === "schedule" ? (
               <div className="flex flex-col gap-4">
                 <h2 className="text-3xl font-bold text-coffee-900">
                   Schedule
                 </h2>
                 <p className="text-coffee-700">
-                  Review the current schedule.
+                  Review the current static schedule view for admin.
                 </p>
                 <ScheduleCard />
               </div>
@@ -180,7 +274,7 @@ function Dashboard() {
                   Training
                 </h2>
                 <p className="text-coffee-700">
-                  Track training and onboarding progress.
+                  Track admin-side training and onboarding items.
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,4 +307,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default AdminDash;
