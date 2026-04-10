@@ -48,7 +48,8 @@ const createOrder = async (req, res) => {
 
     if (
       err.message === "At least one item is required" ||
-      err.message === "customerName is required for guest orders"
+      err.message === "customerName is required for guest orders" ||
+      err.message === "Daily order limit of 100 reached"
     ) {
       return res.status(400).json({ error: err.message });
     }
@@ -77,7 +78,9 @@ const getOrderById = async (req, res) => {
 const getOrderByOrderNumber = async (req, res) => {
   try {
     const { orderNumber } = req.params;
-    const order = await getOrderByOrderNumberService(orderNumber);
+    const { orderDate } = req.query;
+
+    const order = await getOrderByOrderNumberService(orderNumber, orderDate);
 
     return res.status(200).json(order);
   } catch (err) {

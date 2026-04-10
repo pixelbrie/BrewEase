@@ -6,11 +6,43 @@ import { updateTotalSpent, updateLastVisit } from "./customerService.js"
 
 const ordersCollection = db.collection("orders");
 const customersCollection = db.collection("customers");
+const orderCountersCollection = db.collection("order_counters");
 
-const generateOrderNumber = () => {
-  const timestamp = Date.now().toString().slice(-6);
-  const random = Math.floor(100 + Math.random() * 900);
-  return `ORD-${timestamp}${random}`;
+const getTodayKey = () => {
+  return new Date().toISOString().split("T")[0];
+};
+
+const getNextOrderNumber = async () => {
+  const todayKey = getTodayKey();
+  const counterRef = orderCountersCollection.doc(todayKey);
+
+  return await db.runTransaction(async (transaction) => {
+    const counterDoc = await transaction.get(counterRef);
+
+    if (!counterDoc.exists) {
+      transaction.set(counterRef, {
+        date: todayKey,
+        currentNumber: 1,
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      return 1;
+    }
+
+    const currentNumber = counterDoc.data().currentNumber || 0;
+    const nextNumber = currentNumber + 1;
+
+    if (nextNumber > 100) {
+      throw new Error("Daily order limit of 100 reached");
+    }
+
+    transaction.update(counterRef, {
+      currentNumber: nextNumber,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    return nextNumber;
+  });
 };
 
 const createOrder = async ({
@@ -47,10 +79,12 @@ const createOrder = async ({
     throw new Error("customerName is required for guest orders");
   }
 
-  const orderNumber = generateOrderNumber();
+  const orderNumber = await getNextOrderNumber();
+  const orderDate = getTodayKey();
 
   const orderPayload = {
     orderNumber,
+    orderDate,
     items,
     customerId: customerData ? customerData.id : null,
     customerName: customerData
@@ -97,11 +131,14 @@ const getOrderById = async (id) => {
   };
 };
 
-const getOrderByOrderNumber = async (orderNumber) => {
-  const snapshot = await ordersCollection
-    .where("orderNumber", "==", orderNumber)
-    .limit(1)
-    .get();
+const getOrderByOrderNumber = async (orderNumber, orderDate = null) => {
+  let query = ordersCollection.where("orderNumber", "==", Number(orderNumber));
+
+  if (orderDate) {
+    query = query.where("orderDate", "==", orderDate);
+  }
+
+  const snapshot = await query.limit(1).get();
 
   if (snapshot.empty) {
     throw new Error("Order not found");
