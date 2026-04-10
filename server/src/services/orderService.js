@@ -1,5 +1,8 @@
 import { db } from "../config/firebaseAdmin.js";
 import { FieldValue } from "firebase-admin/firestore";
+import { accumulatePointsForOrder } from "./rewardService.js"
+import { updateTotalSpent, updateLastVisit } from "./customerService.js"
+
 
 const ordersCollection = db.collection("orders");
 const customersCollection = db.collection("customers");
@@ -67,6 +70,13 @@ const createOrder = async ({
   };
 
   const docRef = await ordersCollection.add(orderPayload);
+  
+  if (customerData) {
+    await accumulatePointsForOrder(customerData.id, orderPayload.total);
+    await updateTotalSpent(customerData.id, orderPayload.total);
+    await updateLastVisit(customerData.id);
+  }
+  
 
   return {
     id: docRef.id,
