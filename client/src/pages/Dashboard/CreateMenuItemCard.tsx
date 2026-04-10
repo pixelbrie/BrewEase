@@ -1,6 +1,38 @@
 import { useState } from "react";
+import {
+  getMenuItemImage,
+  withMenuItemImage,
+} from "../../utils/menuImageMap.js";
 
 type MenuCategory = "coffee" | "tea";
+
+type PresetImageKey =
+  | ""
+  | "latte"
+  | "espresso"
+  | "americano"
+  | "cappuccino"
+  | "matcha"
+  | "green tea"
+  | "black tea"
+  | "chai tea"
+  | "herbal tea";
+
+const presetOptions: Array<{
+  value: PresetImageKey;
+  label: string;
+  category: MenuCategory;
+}> = [
+  { value: "latte", label: "Latte", category: "coffee" },
+  { value: "espresso", label: "Espresso", category: "coffee" },
+  { value: "americano", label: "Americano", category: "coffee" },
+  { value: "cappuccino", label: "Cappuccino", category: "coffee" },
+  { value: "matcha", label: "Matcha", category: "tea" },
+  { value: "green tea", label: "Green Tea", category: "tea" },
+  { value: "black tea", label: "Black Tea", category: "tea" },
+  { value: "chai tea", label: "Chai Tea", category: "tea" },
+  { value: "herbal tea", label: "Herbal Tea", category: "tea" },
+];
 
 function CreateMenuItemCard() {
   const [form, setForm] = useState({
@@ -8,6 +40,7 @@ function CreateMenuItemCard() {
     basePrice: "",
     categoryId: "coffee" as MenuCategory,
     description: "",
+    presetImageKey: "" as PresetImageKey,
   });
 
   const [createdMessage, setCreatedMessage] = useState("");
@@ -15,12 +48,32 @@ function CreateMenuItemCard() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >,
   ) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+
+    setForm((prev) => {
+      const nextForm = {
+        ...prev,
+        [name]: value,
+      };
+
+      if (name === "categoryId") {
+        const selectedCategory = value as MenuCategory;
+
+        const selectedPreset = presetOptions.find(
+          (option) => option.value === prev.presetImageKey,
+        );
+
+        if (selectedPreset && selectedPreset.category !== selectedCategory) {
+          nextForm.presetImageKey = "";
+        }
+      }
+
+      return nextForm;
+    });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -35,12 +88,16 @@ function CreateMenuItemCard() {
       return;
     }
 
+    const previewImage = form.presetImageKey
+      ? getMenuItemImage(form.presetImageKey, form.categoryId)
+      : getMenuItemImage(form.itemName.trim(), form.categoryId);
+
     const payload = {
       itemName: form.itemName.trim(),
       basePrice: parsedPrice,
       categoryId: form.categoryId,
       description: form.description.trim() || null,
-      previewImage: null,
+      previewImage,
       sizes: ["small", "medium", "large"],
       flavors: [],
       available: true,
@@ -73,6 +130,7 @@ function CreateMenuItemCard() {
         basePrice: "",
         categoryId: "coffee",
         description: "",
+        presetImageKey: "",
       });
     } catch (err: any) {
       setError(err.message || "Failed to create menu item.");
@@ -80,6 +138,16 @@ function CreateMenuItemCard() {
       setLoading(false);
     }
   };
+
+  const filteredPresetOptions = presetOptions.filter(
+    (option) => option.category === form.categoryId,
+  );
+
+  const previewItem = withMenuItemImage({
+    itemName: form.presetImageKey || form.itemName,
+    categoryId: form.categoryId,
+    previewImage: null,
+  });
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 h-full">
@@ -119,6 +187,21 @@ function CreateMenuItemCard() {
           <option value="tea">tea</option>
         </select>
 
+        <select
+          name="presetImageKey"
+          value={form.presetImageKey}
+          onChange={handleChange}
+          className="border border-coffee-300 rounded-md p-3"
+        >
+          <option value="">Select preset image</option>
+
+          {filteredPresetOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+
         <textarea
           name="description"
           value={form.description}
@@ -126,6 +209,24 @@ function CreateMenuItemCard() {
           placeholder="Description"
           className="border border-coffee-300 rounded-md p-3 min-h-[100px]"
         />
+
+        <div className="border border-coffee-200 rounded-md p-3 bg-coffee-50">
+          <p className="text-sm font-semibold text-coffee-800 mb-2">
+            Image Preview
+          </p>
+
+          {previewItem.previewImage ? (
+            <img
+              src={previewItem.previewImage}
+              alt={form.itemName || "Preset preview"}
+              className="w-full h-40 object-cover rounded-md border border-coffee-200"
+            />
+          ) : (
+            <div className="w-full h-40 rounded-md border border-coffee-200 bg-white flex items-center justify-center text-sm text-coffee-500">
+              No preview available
+            </div>
+          )}
+        </div>
 
         <button
           type="submit"
