@@ -26,14 +26,6 @@ type ModifierSelection = {
   note: string;
 };
 
-function generateDailyOrderNumber() {
-  const date = new Date();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const random = Math.floor(1000 + Math.random() * 9000);
-  return `${month}${day}-${random}`;
-}
-
 function PosDashboard() {
   const navigate = useNavigate();
   const { user, logout, loading } = useAuth();
@@ -46,8 +38,8 @@ function PosDashboard() {
   >("all");
 
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [orderNumber, setOrderNumber] = useState(generateDailyOrderNumber());
-  const [lastSubmittedOrderNumber, setLastSubmittedOrderNumber] = useState("");
+  const [currentOrderNumber, setCurrentOrderNumber] = useState<string>("--");
+  const [lastSubmittedOrderNumber, setLastSubmittedOrderNumber] = useState<string>("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isOrderReadyOpen, setIsOrderReadyOpen] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -185,10 +177,12 @@ function PosDashboard() {
         throw new Error(data?.error || "Failed to send order");
       }
 
-      setLastSubmittedOrderNumber(data?.orderNumber || orderNumber);
+      const realOrderNumber = String(data?.orderNumber ?? "--");
+
+      setCurrentOrderNumber(realOrderNumber);
+      setLastSubmittedOrderNumber(realOrderNumber);
       setCartItems([]);
       setSelectedCustomer(null);
-      setOrderNumber(generateDailyOrderNumber());
       setIsOrderReadyOpen(true);
     } catch (error) {
       console.error("Checkout failed:", error);
@@ -196,6 +190,11 @@ function PosDashboard() {
     } finally {
       setCheckoutLoading(false);
     }
+  };
+
+  const handleStartNewOrder = () => {
+    setIsOrderReadyOpen(false);
+    setCurrentOrderNumber("--");
   };
 
   if (loading) {
@@ -233,7 +232,7 @@ function PosDashboard() {
             <div className="min-h-0">
               <CartSummary
                 customer={selectedCustomer}
-                orderNumber={orderNumber}
+                orderNumber={currentOrderNumber}
                 items={cartItems}
                 onCheckout={handleCheckout}
               />
@@ -289,7 +288,7 @@ function PosDashboard() {
         {isOrderReadyOpen ? (
           <OrderReadySplash
             orderNumber={lastSubmittedOrderNumber}
-            onClose={() => setIsOrderReadyOpen(false)}
+            onClose={handleStartNewOrder}
           />
         ) : null}
       </AnimatePresence>
