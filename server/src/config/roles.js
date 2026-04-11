@@ -1,5 +1,5 @@
 // Role definitions
-const ROLES = {
+export const ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',
   BARISTA: 'barista',
@@ -7,7 +7,7 @@ const ROLES = {
 };
 
 // Permission matrix for each role
-const ROLE_PERMISSIONS = {
+export const ROLE_PERMISSIONS = {
   admin: [
     'manage_users',
     'manage_roles',
@@ -38,7 +38,7 @@ const ROLE_PERMISSIONS = {
 };
 
 // Route protection by minimum required role
-const ROUTE_PROTECTION = {
+export const ROUTE_PROTECTION = {
   '/admin': ROLES.ADMIN,
   '/settings': ROLES.ADMIN,
   '/users': ROLES.ADMIN,
@@ -48,10 +48,4 @@ const ROUTE_PROTECTION = {
   '/inventory': ROLES.MANAGER,
   '/orders': ROLES.BARISTA,
   '/menu': ROLES.BARISTA
-};
-
-module.exports = {
-  ROLES,
-  ROLE_PERMISSIONS,
-  ROUTE_PROTECTION
 };
