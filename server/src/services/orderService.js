@@ -152,6 +152,10 @@ const getOrderByOrderNumber = async (orderNumber, orderDate = null) => {
   };
 };
 
+const getAllOrders = async () => {
+  let query = ordersCollection.where()
+}
+
 export {
   createOrder,
   getOrderById,
