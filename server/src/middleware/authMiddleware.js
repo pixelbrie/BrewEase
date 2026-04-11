@@ -21,7 +21,7 @@ export const requireAuth = async (req, res, next) => {
 
     return res.status(500).json({
       error: "Authentication check failed",
-      details: error.message,
+      details: error.message
     });
   }
 };
