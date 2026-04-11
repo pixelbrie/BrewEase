@@ -4,7 +4,7 @@ import customerRouter from "./routes/customerRoutes.js";
 import rewardRouter from "./routes/rewardRoutes.js"
 import session from "express-session";
 import authRoutes from "./routes/authRoutes.js";
-import orderRouter from "./routes/orderRoute.js";
+import orderRouter from "./routes/orderRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js"; 
 
 const app = express();
