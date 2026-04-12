@@ -152,7 +152,7 @@ const getOrderByOrderNumber = async (orderNumber, orderDate = null) => {
   };
 };
 
-const getAllOrders = async () => {
+const getAllOrdersToday = async () => {
   let query = ordersCollection.where()
 }
 

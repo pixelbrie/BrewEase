@@ -2,7 +2,7 @@ import {
   createOrder as createOrderService,
   getOrderById as getOrderByIdService,
   getOrderByOrderNumber as getOrderByOrderNumberService,
-  getAllOrders as getAllOrdersService
+  getAllOrdersToday as getAllOrdersTodayService
 } from "../services/orderService.js";
 
 const createOrder = async (req, res) => {
@@ -94,9 +94,9 @@ const getOrderByOrderNumber = async (req, res) => {
   }
 };
 
-const getAllOrders = async (req, res) => {
+const getAllOrdersToday = async (req, res) => {
   try{
-    const orders = await getAllOrdersService();
+    const orders = await getAllOrdersTodayService();
     return res.status(200).json(orders);
   } catch (err) {
     // If no orders are received, we'll still keep a 200 status but just return an empty arr []. This is gonna make it simple for the frontend to just .map() this and account for that.
