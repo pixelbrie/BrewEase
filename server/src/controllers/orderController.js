@@ -99,7 +99,7 @@ const getAllOrdersToday = async (req, res) => {
     const orders = await getAllOrdersTodayService();
     return res.status(200).json(orders);
   } catch (err) {
-    // If no orders are received, we'll still keep a 200 status but just return an empty arr []. This is gonna make it simple for the frontend to just .map() this and account for that.
+    // If no orders are received, we'll still keep a 200 status but just return an empty arr [] in success. This is gonna make it simple for the frontend to just .map() this and account for that.
     console.error(err);
     return res.status(500).json({ error: "Server error" });
   }
@@ -109,5 +109,5 @@ export {
   createOrder,
   getOrderById,
   getOrderByOrderNumber,
-  getAllOrders
+  getAllOrdersToday
 };

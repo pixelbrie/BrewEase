@@ -153,11 +153,30 @@ const getOrderByOrderNumber = async (orderNumber, orderDate = null) => {
 };
 
 const getAllOrdersToday = async () => {
-  let query = ordersCollection.where()
-}
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  let query = ordersCollection.where("createdAt", ">=", startOfDay);
+  
+  const snapshot = await query.get();
+  
+  if (snapshot.empty) {
+    return []
+  }
+  
+  const orders = snapshot.docs.map((doc) => {
+    return {
+      id: doc.id,
+      ...doc.data()
+    };
+  });
+  
+  return orders;
+};
 
 export {
   createOrder,
   getOrderById,
   getOrderByOrderNumber,
+  getAllOrdersToday
 };
