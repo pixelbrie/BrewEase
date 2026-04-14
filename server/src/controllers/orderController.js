@@ -2,7 +2,8 @@ import {
   createOrder as createOrderService,
   getOrderById as getOrderByIdService,
   getOrderByOrderNumber as getOrderByOrderNumberService,
-  getAllOrdersToday as getAllOrdersTodayService
+  getAllOrdersToday as getAllOrdersTodayService,
+  updateOrderStatus as updateOrderStatusService
 } from "../services/orderService.js";
 
 const createOrder = async (req, res) => {
@@ -105,9 +106,22 @@ const getAllOrdersToday = async (req, res) => {
   }
 };
 
+const updateOrderStatus = async (req, res) => {
+  try{
+    const { id } = req.params;
+    const { status } = req.body;
+    await updateOrderStatusService(id, status)
+    return res.status(200).json({ id, status });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "DB Update error" });
+  }
+}
+
 export {
   createOrder,
   getOrderById,
   getOrderByOrderNumber,
-  getAllOrdersToday
+  getAllOrdersToday,
+  updateOrderStatus
 };

@@ -174,9 +174,24 @@ const getAllOrdersToday = async () => {
   return orders;
 };
 
+const updateOrderStatus = async (orderId, newStatus) => {
+  try{ 
+    await ordersCollection.doc(orderId).update({
+      status: newStatus,
+      updatedAt: FieldValue.serverTimestamp()
+    });
+    
+    return { id: orderId, status: newStatus };
+  } catch (error) {
+    console.error("DB Error updating status:", error);
+    throw new Error("Failed to update order status");
+  }
+}
+
 export {
   createOrder,
   getOrderById,
   getOrderByOrderNumber,
-  getAllOrdersToday
+  getAllOrdersToday,
+  updateOrderStatus
 };
