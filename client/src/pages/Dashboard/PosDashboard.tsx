@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FilterContainer from "../../layouts/FilterContainer.js";
 import UserInfoSection from "../../layouts/UserInfoSection.js";
+import OrderQueue from "./OrderQueue";
 import CustomerLookupCard, {
   type Customer,
 } from "../../layouts/CustomerLookupCard.js";
@@ -223,10 +224,17 @@ function PosDashboard() {
 
           <div className="grid grid-cols-1 xl:grid-cols-[1fr_1fr] gap-2 flex-1 min-h-0">
             <div className="min-h-0 overflow-y-auto">
+
+              <button // View orders
+                onClick={() => navigate("/pos/orders")}
+                className="w-full bg-coffee-800 text-white font-bold py-3 rounded-md shadow hover:bg-coffee-700 transition"
+              >View Orders</button>
+
               <CustomerLookupCard
                 selectedCustomer={selectedCustomer}
                 onCustomerSelect={setSelectedCustomer}
               />
+  
             </div>
 
             <div className="min-h-0">

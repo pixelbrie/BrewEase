@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/", createOrder);
 router.get("/number/:orderNumber", getOrderByOrderNumber);
-router.get("/:id", getOrderById);
 router.get("/view", requireAuth, getAllOrdersToday);
+router.get("/:id", getOrderById);
 
 export default router;

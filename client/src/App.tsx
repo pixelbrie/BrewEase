@@ -4,6 +4,7 @@ import Signup from "./pages/Auth/Signup.js";
 import Dashboard from "./pages/Dashboard/Dashboard.js";
 import AdminDash from "./pages/Dashboard/AdminDash.js";
 import PosDashboard from "./pages/Dashboard/PosDashboard.js";
+import OrderQueue from "./pages/Dashboard/OrderQueue.tsx";
 import MenuPage from "./pages/Menu/MenuPage.js";
 import { Route, Routes } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.js";
@@ -41,6 +42,13 @@ function App() {
             <ProtectedRoute>
               <PosDashboard />
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="pos/orders"
+          element={
+            <OrderQueue />
           }
         />
 
